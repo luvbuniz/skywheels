@@ -30,9 +30,21 @@ Open in Chrome, Edge, or Firefox and hit **START DRIVING**.
 | **Traffic** | Other fancy cars on roads, on the bridge, and in the sky |
 
 ### Rules
-- Hit a **building**, **mountain**, **other car**, **animal**, or **cave hazard** → **GAME OVER**
+- Hit a **building**, **mountain**, **other car**, **animal**, **cave hazard**, or the **monster** → **GAME OVER**
 - You **cannot drive through** solid things
+- **Enter buildings only through doors** (press **E** while walking)
+- **Fuel** runs out — fill at the gas station or with a gas can
 - Use the **control sign** on the right while you play
+
+### New places
+| Place | Where / how |
+|-------|-------------|
+| **Airport** | East of the city — park, get out (**F**), walk in the **door** (**E**) |
+| **Gas station** | West of the city — park at pumps + **E** to fill · shop door for **gas cans** |
+| **Monster cave** | Far northwest — purple on minimap — monster chases you! |
+
+### Animals & people
+Deer, sheep, cows, dogs, **foxes**, lots of **birds**, bats, and **people walking on sidewalks**.
 
 ---
 
@@ -45,8 +57,10 @@ Always shown on the in-game control sign (right side):
 | **W / ↑** | Gas |
 | **S / ↓** | Brake / reverse |
 | **A D / ← →** | Steer |
-| **Space** | Fly up |
+| **Space** | Fly up (in car) |
 | **Shift** | Fly down |
+| **F** | Get out of / into car |
+| **E** | Open door · gas pump · buy/use gas can |
 | **C** | Look behind you |
 | **V** | Camera: behind car (default) / close-up |
 | **R** | Restart after crash |
