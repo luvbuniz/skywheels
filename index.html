@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a4a8a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SkyWheels" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="SkyWheels flying car game — works offline, saves on this tablet." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
   <title>SkyWheels — Fancy Flying Cars</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -179,6 +189,12 @@
         </ul>
       </div>
       <button class="primary" id="startBtn" type="button">START DRIVING ✦</button>
+      <p id="saveNote" style="margin-top:0.9rem;font-size:0.82rem;color:#8eb8e0;line-height:1.4">
+        💾 Progress saves on <b>this tablet only</b> · 📴 Works offline after one online load
+      </p>
+      <p id="offlineBadge" style="display:none;margin-top:0.5rem;font-size:0.8rem;color:#7dffa0;font-weight:700">
+        ✓ Offline ready — no internet needed
+      </p>
     </div>
   </div>
 
@@ -227,7 +243,7 @@
   <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      "three": "./vendor/three.module.js"
     }
   }
   </script>
@@ -1014,6 +1030,101 @@ const player = {
   footYaw: 0,
 };
 
+// ─── Local save (per tablet / browser — stays on this device) ─
+const SAVE_KEY = 'skywheels_save_v1';
+let saveTimer = 0;
+let lastSaveFlash = 0;
+
+function getSaveData() {
+  return {
+    v: 1,
+    savedAt: Date.now(),
+    car: {
+      x: playerCar.position.x,
+      y: playerCar.position.y,
+      z: playerCar.position.z,
+      yaw: player.yaw,
+    },
+    speed: player.speed,
+    flying: player.flying,
+    fuel: player.fuel,
+    gasCans: player.gasCans,
+    onFoot: player.onFoot,
+    inside: player.inside,
+    foot: {
+      x: player.footPos.x,
+      y: player.footPos.y,
+      z: player.footPos.z,
+      yaw: player.footYaw,
+    },
+    cockpit: player.cockpit,
+  };
+}
+
+function saveGame(quiet = true) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(getSaveData()));
+    if (!quiet) {
+      toastHint('💾 Saved on this tablet!');
+      lastSaveFlash = performance.now();
+    }
+    return true;
+  } catch (e) {
+    console.warn('Save failed', e);
+    return false;
+  }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data.car) return false;
+
+    playerCar.position.set(data.car.x, data.car.y, data.car.z);
+    player.yaw = data.car.yaw || 0;
+    player.speed = 0;
+    player.vy = 0;
+    player.flying = false;
+    player.fuel = typeof data.fuel === 'number' ? data.fuel : 100;
+    player.gasCans = data.gasCans || 0;
+    player.cockpit = !!data.cockpit;
+    player.alive = true;
+    player.invuln = 1.5;
+    player.inside = data.inside || null;
+
+    if (data.foot) {
+      player.footPos.set(data.foot.x, data.foot.y || 0, data.foot.z);
+      player.footYaw = data.foot.yaw || 0;
+    } else {
+      player.footPos.set(data.car.x, 0, data.car.z);
+      player.footYaw = player.yaw;
+    }
+
+    player.onFoot = !!data.onFoot;
+    playerPerson.visible = player.onFoot;
+    playerCar.visible = true;
+    if (player.onFoot) {
+      playerPerson.position.set(player.footPos.x, 0, player.footPos.z);
+      playerPerson.rotation.y = player.footYaw;
+    }
+    playerCar.rotation.set(0, player.yaw, 0);
+    return true;
+  } catch (e) {
+    console.warn('Load failed', e);
+    return false;
+  }
+}
+
+function hasSave() {
+  try { return !!localStorage.getItem(SAVE_KEY); } catch { return false; }
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch {}
+}
+
 // Player on foot avatar
 const playerPerson = makePerson(0xff4466);
 playerPerson.visible = false;
@@ -1401,6 +1512,7 @@ function resetPlayer() {
   playerCar.rotation.set(0, 0, 0);
   playerCar.visible = true;
   playerPerson.visible = false;
+  saveGame(true);
 }
 
 function toastHint(msg) {
@@ -1420,6 +1532,7 @@ function tryExitEnterCar() {
       playerCar.visible = true;
       player.yaw = player.footYaw;
       toastHint('Back in the car! Drive carefully ⛽');
+      saveGame(true);
     } else {
       toastHint('Walk closer to your car to get in (F)');
     }
@@ -1440,6 +1553,7 @@ function tryExitEnterCar() {
     playerPerson.visible = true;
     playerCar.visible = true; // parked car stays visible
     toastHint('Walking! F = get in car · E = open doors / use gas');
+    saveGame(true);
   }
 }
 
@@ -1453,6 +1567,7 @@ function tryInteract() {
     if (nearPump && playerCar.position.y < 4) {
       player.fuel = 100;
       toastHint('⛽ Tank full! Ready to roll!');
+      saveGame(true);
       return;
     }
     // use gas can on car
@@ -1460,6 +1575,7 @@ function tryInteract() {
       player.gasCans -= 1;
       player.fuel = Math.min(100, player.fuel + 45);
       toastHint('⛽ Poured a gas can into the tank!');
+      saveGame(true);
       return;
     }
   }
@@ -1470,6 +1586,7 @@ function tryInteract() {
     if (player.inside === 'gas_shop') {
       player.gasCans += 1;
       toastHint('🛒 Bought a gas can! Carry it to your car and press E');
+      saveGame(true);
       return;
     }
     // Use can near car while on foot
@@ -1477,6 +1594,7 @@ function tryInteract() {
       player.gasCans -= 1;
       player.fuel = Math.min(100, player.fuel + 45);
       toastHint('⛽ Filled the car from a gas can!');
+      saveGame(true);
       return;
     }
     // Door enter/exit
@@ -1486,6 +1604,7 @@ function tryInteract() {
         player.inside = null;
         player.footPos.copy(place.outside);
         toastHint(`Left the ${place.name}`);
+        saveGame(true);
         return;
       }
     }
@@ -1494,6 +1613,7 @@ function tryInteract() {
         player.inside = place.id;
         player.footPos.copy(place.inside);
         toastHint(`Entered ${place.name} through the door! (E to leave)`);
+        saveGame(true);
         return;
       }
     }
@@ -1633,13 +1753,30 @@ document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('hud').classList.add('show');
   started = true;
   lastT = performance.now();
+  // Load this tablet's save if any
+  const loaded = loadGame();
   player.invuln = 1.5;
+  if (loaded) {
+    toastHint('💾 Welcome back! Loaded save from this tablet');
+  } else {
+    toastHint('New game on this tablet — progress will auto-save 💾');
+    saveGame(true);
+  }
 });
 document.getElementById('retryBtn').addEventListener('click', () => {
   initAudio();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   retryGame();
+  saveGame(true);
 });
+
+// Update start button if save exists
+if (hasSave()) {
+  const btn = document.getElementById('startBtn');
+  if (btn) btn.textContent = 'CONTINUE ✦ (saved on this tablet)';
+  const note = document.getElementById('saveNote');
+  if (note) note.innerHTML = '💾 Found a save on <b>this tablet</b> — press Continue to keep going!';
+}
 
 function updatePlayer(dt) {
   if (!player.alive) return;
@@ -2090,6 +2227,12 @@ function frame(now) {
     updateCamera(dt);
     updateHUD();
     updateSounds(dt);
+    // Autosave every ~4 seconds on this device
+    saveTimer += dt;
+    if (saveTimer > 4) {
+      saveTimer = 0;
+      if (player.alive) saveGame(true);
+    }
   } else {
     const t = now * 0.00015;
     camera.position.set(Math.sin(t) * 70, 30, Math.cos(t) * 70 + 40);
@@ -2110,6 +2253,50 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Save when leaving the page / switching apps (important on tablets)
+window.addEventListener('pagehide', () => { if (started && player.alive) saveGame(true); });
+window.addEventListener('beforeunload', () => { if (started && player.alive) saveGame(true); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && started && player.alive) saveGame(true);
+});
+
+// Offline + installable app (service worker)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then((reg) => {
+    console.log('SkyWheels offline ready', reg.scope);
+    const badge = document.getElementById('offlineBadge');
+    if (badge) {
+      // show after install/cache
+      setTimeout(() => {
+        if (navigator.serviceWorker.controller || reg.active) {
+          badge.style.display = 'block';
+        }
+      }, 1500);
+    }
+  }).catch((e) => console.warn('SW register failed', e));
+}
+
+// Show offline status
+function refreshOnlineUI() {
+  const badge = document.getElementById('offlineBadge');
+  if (!badge) return;
+  if (!navigator.onLine) {
+    badge.style.display = 'block';
+    badge.textContent = '📴 Offline mode — playing from this tablet';
+    badge.style.color = '#ffd36a';
+  }
+}
+window.addEventListener('offline', refreshOnlineUI);
+window.addEventListener('online', () => {
+  const badge = document.getElementById('offlineBadge');
+  if (badge) {
+    badge.style.display = 'block';
+    badge.textContent = '✓ Online · saves stay on this tablet';
+    badge.style.color = '#7dffa0';
+  }
+});
+refreshOnlineUI();
   </script>
 </body>
 </html>
