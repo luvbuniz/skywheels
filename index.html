@@ -359,9 +359,81 @@ mirrorRenderer.toneMapping = THREE.ACESFilmicToneMapping;
 mirrorRenderer.toneMappingExposure = 1.05;
 mirrorRenderer.outputColorSpace = THREE.SRGBColorSpace;
 
+function makeSkyTexture() {
+  const skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 1024;
+  skyCanvas.height = 512;
+  const ctx = skyCanvas.getContext('2d');
+  const sky = ctx.createLinearGradient(0, 0, 0, skyCanvas.height);
+  sky.addColorStop(0, '#1f5f9e');
+  sky.addColorStop(0.42, '#70b6e3');
+  sky.addColorStop(0.72, '#b8def1');
+  sky.addColorStop(1, '#e5f3f7');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, skyCanvas.width, skyCanvas.height);
+
+  const glow = ctx.createRadialGradient(760, 115, 8, 760, 115, 245);
+  glow.addColorStop(0, 'rgba(255, 249, 210, 0.92)');
+  glow.addColorStop(0.22, 'rgba(255, 234, 169, 0.35)');
+  glow.addColorStop(1, 'rgba(255, 234, 169, 0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, skyCanvas.width, skyCanvas.height);
+
+  const haze = ctx.createLinearGradient(0, 300, 0, skyCanvas.height);
+  haze.addColorStop(0, 'rgba(255,255,255,0)');
+  haze.addColorStop(1, 'rgba(255,255,255,0.34)');
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, 0, skyCanvas.width, skyCanvas.height);
+
+  const texture = new THREE.CanvasTexture(skyCanvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function makeWindowTexture() {
+  const windowCanvas = document.createElement('canvas');
+  windowCanvas.width = 160;
+  windowCanvas.height = 240;
+  const ctx = windowCanvas.getContext('2d');
+  ctx.fillStyle = '#10263c';
+  ctx.fillRect(0, 0, windowCanvas.width, windowCanvas.height);
+  const columns = 6;
+  const rows = 10;
+  const gapX = 4;
+  const gapY = 5;
+  const cellW = (windowCanvas.width - gapX * (columns + 1)) / columns;
+  const cellH = (windowCanvas.height - gapY * (rows + 1)) / rows;
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const warm = (row * 7 + column * 11) % 5 !== 0;
+      ctx.fillStyle = warm ? '#ffe0a0' : '#69b9e5';
+      ctx.globalAlpha = warm ? 0.8 : 0.54;
+      ctx.fillRect(gapX + column * (cellW + gapX), gapY + row * (cellH + gapY), cellW, cellH);
+    }
+  }
+  ctx.globalAlpha = 1;
+  const texture = new THREE.CanvasTexture(windowCanvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function makeGlowTexture() {
+  const glowCanvas = document.createElement('canvas');
+  glowCanvas.width = glowCanvas.height = 128;
+  const ctx = glowCanvas.getContext('2d');
+  const glow = ctx.createRadialGradient(64, 64, 2, 64, 64, 64);
+  glow.addColorStop(0, 'rgba(255,255,244,1)');
+  glow.addColorStop(0.18, 'rgba(255,239,171,0.96)');
+  glow.addColorStop(0.48, 'rgba(255,214,116,0.34)');
+  glow.addColorStop(1, 'rgba(255,214,116,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(glowCanvas);
+}
+
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87b8e8);
-scene.fog = new THREE.FogExp2(0x9ec8e8, 0.0013);
+scene.background = makeSkyTexture();
+scene.fog = new THREE.FogExp2(0x9bbfe0, 0.00115);
 
 const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.4, 2500);
 const rearCamera = new THREE.PerspectiveCamera(55, 200 / 108, 0.4, 800);
@@ -379,6 +451,17 @@ sun.shadow.bias = -0.00025;
 scene.add(sun);
 scene.add(new THREE.DirectionalLight(0x88aaff, 0.25).translateX(-120).translateY(80).translateZ(-100));
 scene.add(new THREE.AmbientLight(0x6688aa, 0.28));
+
+const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: makeGlowTexture(),
+  color: 0xfff2c6,
+  transparent: true,
+  depthWrite: false,
+  opacity: 0.82,
+}));
+sunHalo.position.set(-260, 260, -420);
+sunHalo.scale.set(170, 170, 1);
+scene.add(sunHalo);
 
 // ─── Helpers ─────────────────────────────────────────────────
 function makeMat(color, metal = 0.75, rough = 0.28, emissive = 0x000000, eInt = 0) {
@@ -416,8 +499,24 @@ const groundGeo = new THREE.PlaneGeometry(2000, 2000, 48, 48);
     p.setZ(i, h);
   }
   groundGeo.computeVertexNormals();
+
+  const colors = new Float32Array(p.count * 3);
+  const color = new THREE.Color();
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    const y = p.getY(i);
+    const variation = Math.sin(x * 0.025) * Math.cos(y * 0.032);
+    const height = p.getZ(i);
+    color.setHSL(0.30 + variation * 0.035, 0.33, 0.24 + variation * 0.04 + height * 0.002);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+  groundGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 }
-const ground = addShadow(new THREE.Mesh(groundGeo, makeMat(0x3d7a45, 0.05, 0.92)), false, true);
+const groundMaterial = makeMat(0xffffff, 0.04, 0.94);
+groundMaterial.vertexColors = true;
+const ground = addShadow(new THREE.Mesh(groundGeo, groundMaterial), false, true);
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
@@ -471,6 +570,7 @@ placeRoad(WORLD.mountainX + 95, 340, 80, Math.PI / 2);
 // ─── City buildings ──────────────────────────────────────────
 const buildingColors = [0x6a8fad, 0x8aa0b8, 0x5c6e8a, 0xa8b8c8, 0x4a6080, 0xc0a070, 0x7090a8, 0x556677];
 const neonColors = [0x44ddff, 0xff66cc, 0xffdd44, 0x66ff99, 0xff8844];
+const windowTexture = makeWindowTexture();
 
 function makeBuilding(w, h, d, color) {
   const g = new THREE.Group();
@@ -482,6 +582,25 @@ function makeBuilding(w, h, d, color) {
     const band = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, 0.9, d + 0.15), glass);
     band.position.y = (i / floors) * h; g.add(band);
   }
+
+  const windowMat = new THREE.MeshBasicMaterial({
+    map: windowTexture,
+    transparent: true,
+    opacity: 0.82,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const facadeHeight = h * 0.74;
+  const facadeY = h * 0.5;
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.78, facadeHeight), windowMat);
+  front.position.set(0, facadeY, d * 0.505); g.add(front);
+  const back = front.clone();
+  back.position.z = -d * 0.505; back.rotation.y = Math.PI; g.add(back);
+  const left = new THREE.Mesh(new THREE.PlaneGeometry(d * 0.78, facadeHeight), windowMat);
+  left.position.set(-w * 0.505, facadeY, 0); left.rotation.y = -Math.PI / 2; g.add(left);
+  const right = left.clone();
+  right.position.x = w * 0.505; right.rotation.y = Math.PI / 2; g.add(right);
+
   const neon = neonColors[(Math.random() * neonColors.length) | 0];
   const top = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4, 1.2, d * 0.4), makeMat(0x222833, 0.7, 0.3, neon, 0.8));
   top.position.y = h + 0.6; g.add(top);
@@ -2446,6 +2565,9 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
+
+  const haloPulse = 1 + Math.sin(now * 0.0007) * 0.045;
+  sunHalo.scale.set(170 * haloPulse, 170 * haloPulse, 1);
 
   if (started) {
     updatePlayer(dt);
