@@ -1570,14 +1570,23 @@ function playChirp() {
 
 // ─── Input ───────────────────────────────────────────────────
 const keys = Object.create(null);
-const isTouchDevice = (
-  matchMedia('(pointer: coarse)').matches ||
-  matchMedia('(hover: none)').matches ||
-  navigator.maxTouchPoints > 1 ||
-  'ontouchstart' in window ||
-  /Android|iPad|iPhone|Tablet|Mobile/i.test(navigator.userAgent)
-);
-if (isTouchDevice) {
+function isTabletDevice() {
+  const userAgent = navigator.userAgent || '';
+  const touchPoints = navigator.maxTouchPoints || 0;
+  const hasCoarsePointer = matchMedia('(pointer: coarse)').matches;
+  const hasHover = matchMedia('(any-hover: hover)').matches;
+  const shortScreenSide = Math.min(screen.width, screen.height);
+  const isIPad = /iPad/.test(userAgent) ||
+    (navigator.platform === 'MacIntel' && touchPoints > 1);
+  const isAndroidTablet = /Android/.test(userAgent) && !/Mobile/.test(userAgent);
+  const isTouchOnlyLargeScreen = touchPoints > 1 && hasCoarsePointer &&
+    !hasHover && shortScreenSide >= 600;
+
+  return isIPad || isAndroidTablet || isTouchOnlyLargeScreen;
+}
+
+const isTablet = isTabletDevice();
+if (isTablet) {
   document.body.classList.add('touch');
   const dc = document.getElementById('desktopControls');
   const tc = document.getElementById('tabletControls');
@@ -1678,7 +1687,7 @@ document.getElementById('touchCenter')?.addEventListener('pointerdown', e => {
 });
 
 window.addEventListener('keydown', (e) => {
-  if (isTouchDevice) return; // tablet uses circles only
+  if (isTablet) return; // tablet uses circles only
   keys[e.code] = true;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.code === 'KeyC' && !player.onFoot) player.lookBack = true;
@@ -1948,7 +1957,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
   // Load this tablet's save if any
   const loaded = loadGame();
   player.invuln = 1.5;
-  if (isTouchDevice) {
+  if (isTablet) {
     toastHint(loaded
       ? '💾 Welcome back! Left circle MOVE · Right circle LOOK · 🚶 WALK · ⛽ USE'
       : '📱 Left circle = drive · Right = look · 🚶 get out · ⛽ gas/doors');
@@ -1979,7 +1988,7 @@ function updatePlayer(dt) {
   if (player.invuln > 0) player.invuln -= dt;
 
   // Touch look stick (car or foot)
-  if (isTouchDevice && (touchLook.x || touchLook.y)) {
+  if (isTablet && (touchLook.x || touchLook.y)) {
     if (player.onFoot) {
       player.footYaw -= touchLook.x * 2.4 * dt;
     } else {
@@ -2000,7 +2009,7 @@ function updatePlayer(dt) {
     let fx = 0, sx = 0;
     if (fwd) fx += 1;
     if (back) fx -= 1;
-    if (isTouchDevice && (touchMove.x || touchMove.z)) {
+    if (isTablet && (touchMove.x || touchMove.z)) {
       fx += -touchMove.z; // stick up = forward
       sx += touchMove.x;
     }
@@ -2038,7 +2047,7 @@ function updatePlayer(dt) {
   const flyDown = keys['ShiftLeft'] || keys['ShiftRight'];
 
   // Tablet drive stick
-  if (isTouchDevice && (touchMove.x || touchMove.z)) {
+  if (isTablet && (touchMove.x || touchMove.z)) {
     if (touchMove.z < -0.15) accel = true; // stick up = gas
     if (touchMove.z > 0.15) brake = true;  // stick down = brake
     if (touchMove.x < -0.2) left = true;
@@ -2050,7 +2059,7 @@ function updatePlayer(dt) {
     player.speed *= Math.pow(0.05, dt);
     player.fuel = 0;
     if (Math.abs(player.speed) < 0.5) {
-      toastHint(isTouchDevice
+      toastHint(isTablet
         ? '⛽ OUT OF GAS! Tap 🚶 WALK → go to red gas station → ⛽ USE'
         : '⛽ OUT OF GAS! Get out (F), walk to Gas Shop, buy a can (E), bring it back!');
     }
