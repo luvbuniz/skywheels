@@ -168,6 +168,57 @@
       transition: opacity 0.08s;
     }
     #crashFlash.on { opacity: 0.45; }
+
+    /* Tablet touch controls */
+    #touchPad { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 15; }
+    body.touch #touchPad { display: block; }
+    body.touch #controlSign { display: none !important; }
+    body.touch #mirror { width: min(140px, 22vw); height: min(78px, 12vw); top: 10px; right: 10px; }
+    body.touch .hint { top: 10px; font-size: 0.72rem; max-width: 70vw; }
+    body.touch .speedo { left: 10px; bottom: 10px; transform: scale(0.9); transform-origin: bottom left; }
+    body.touch #minimap { bottom: 10px; width: 90px; height: 90px; }
+    #lookDragLayer {
+      display: none; position: absolute; inset: 0; pointer-events: auto; touch-action: none; z-index: 1;
+    }
+    body.touch #lookDragLayer { display: block; }
+    .touch-zone {
+      position: absolute; pointer-events: auto; touch-action: none; z-index: 16;
+      border-radius: 50%; background: rgba(8,16,32,0.5);
+      border: 3px solid rgba(120,190,255,0.45); box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    #moveZone { left: 16px; bottom: 88px; width: min(38vw, 150px); height: min(38vw, 150px); }
+    #lookZone { right: 16px; bottom: 88px; width: min(38vw, 150px); height: min(38vw, 150px); }
+    .stick-label {
+      position: absolute; top: 10px; left: 0; right: 0; text-align: center;
+      font-size: 0.78rem; font-weight: 900; color: #b8e0ff; letter-spacing: 0.06em;
+    }
+    .stick-base {
+      position: absolute; left: 50%; top: 54%; width: 72%; height: 72%;
+      transform: translate(-50%, -50%); border-radius: 50%;
+      background: rgba(100,180,255,0.12); border: 2px solid rgba(120,190,255,0.3);
+    }
+    .stick-knob {
+      position: absolute; left: 50%; top: 54%; width: 38%; height: 38%;
+      transform: translate(-50%, -50%); border-radius: 50%;
+      background: linear-gradient(145deg, #6ee7ff, #4a9cff);
+      border: 3px solid rgba(255,255,255,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    }
+    #touchActions, #touchActionsLeft {
+      position: absolute; bottom: 12px; display: none; flex-wrap: wrap; gap: 10px;
+      pointer-events: auto; z-index: 16; max-width: 48vw;
+    }
+    body.touch #touchActions, body.touch #touchActionsLeft { display: flex; }
+    #touchActions { right: 12px; justify-content: flex-end; }
+    #touchActionsLeft { left: 12px; }
+    .tact {
+      width: 70px; height: 70px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.45);
+      background: linear-gradient(145deg, #3a8cff, #6ee7ff); color: #041018;
+      font-weight: 900; font-size: 0.68rem; font-family: inherit; line-height: 1.15;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35); -webkit-tap-highlight-color: transparent;
+    }
+    .tact.alt { background: linear-gradient(145deg, #ffd36a, #ff9a4a); color: #2a1800; }
+    .tact.fly { background: linear-gradient(145deg, #a78bfa, #60a5fa); color: #fff; }
+    .tact:active { transform: scale(0.94); }
   </style>
 </head>
 <body>
@@ -179,13 +230,22 @@
         Drive fancy flying cars, walk on sidewalks, visit the airport &amp; shops (enter only through doors!),
         fill up at the gas station, watch foxes &amp; birds, and don’t wake the cave monster!
       </p>
-      <div class="controls">
+      <div class="controls" id="desktopControls">
         <h3>QUICK CONTROLS</h3>
         <ul>
           <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> — drive or walk</li>
           <li><kbd>F</kbd> — get out / get in car · <kbd>E</kbd> enter door / use gas</li>
           <li><kbd>SPACE</kbd> fly up · <kbd>SHIFT</kbd> fly down (in car)</li>
           <li>Watch fuel! Buy a gas can if you run out ⛽</li>
+        </ul>
+      </div>
+      <div class="controls" id="tabletControls" style="display:none">
+        <h3>📱 TABLET CONTROLS</h3>
+        <ul>
+          <li><b>Left circle</b> — move / drive</li>
+          <li><b>Right circle</b> — look around</li>
+          <li><b>Drag</b> middle of screen — also look</li>
+          <li>Buttons: Walk, Gas, Fly up/down, Place actions</li>
         </ul>
       </div>
       <button class="primary" id="startBtn" type="button">START DRIVING ✦</button>
@@ -236,6 +296,30 @@
     </div>
     <div class="look-badge" id="lookBadge">LOOKING BACK</div>
     <div id="minimap"><canvas id="mapCanvas" width="112" height="112"></canvas></div>
+
+    <div id="touchPad">
+      <div id="lookDragLayer"></div>
+      <div class="touch-zone" id="moveZone">
+        <div class="stick-label">MOVE</div>
+        <div class="stick-base"></div>
+        <div class="stick-knob" id="moveKnob"></div>
+      </div>
+      <div class="touch-zone" id="lookZone">
+        <div class="stick-label">LOOK</div>
+        <div class="stick-base"></div>
+        <div class="stick-knob" id="lookKnob"></div>
+      </div>
+      <div id="touchActionsLeft">
+        <button type="button" class="tact" id="touchWalk">🚶<br>WALK</button>
+        <button type="button" class="tact alt" id="touchUse">⛽<br>USE</button>
+        <button type="button" class="tact fly" id="touchCenter">👀<br>CENTER</button>
+      </div>
+      <div id="touchActions">
+        <button type="button" class="tact fly" id="touchFlyUp">⬆️<br>FLY</button>
+        <button type="button" class="tact alt" id="touchFlyDown">⬇️<br>DOWN</button>
+        <button type="button" class="tact" id="touchBrake">🛑<br>STOP</button>
+      </div>
+    </div>
   </div>
 
   <canvas id="game"></canvas>
@@ -1486,7 +1570,115 @@ function playChirp() {
 
 // ─── Input ───────────────────────────────────────────────────
 const keys = Object.create(null);
+const isTouchDevice = (
+  matchMedia('(pointer: coarse)').matches ||
+  matchMedia('(hover: none)').matches ||
+  navigator.maxTouchPoints > 1 ||
+  'ontouchstart' in window ||
+  /Android|iPad|iPhone|Tablet|Mobile/i.test(navigator.userAgent)
+);
+if (isTouchDevice) {
+  document.body.classList.add('touch');
+  const dc = document.getElementById('desktopControls');
+  const tc = document.getElementById('tabletControls');
+  if (dc) dc.style.display = 'none';
+  if (tc) tc.style.display = 'block';
+}
+
+const touchMove = { x: 0, z: 0 };
+const touchLook = { x: 0, y: 0 };
+
+function bindStick(zoneId, knobId, onMove, onEnd) {
+  const zone = document.getElementById(zoneId);
+  const knob = document.getElementById(knobId);
+  if (!zone || !knob) return;
+  let active = null;
+  function center() {
+    const r = zone.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height * 0.54, max: Math.min(r.width, r.height) * 0.32 };
+  }
+  function handle(clientX, clientY) {
+    const c = center();
+    let dx = clientX - c.x, dy = clientY - c.y;
+    const len = Math.hypot(dx, dy) || 1;
+    if (len > c.max) { dx = (dx / len) * c.max; dy = (dy / len) * c.max; }
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    const nx = Math.abs(dx / c.max) < 0.12 ? 0 : dx / c.max;
+    const ny = Math.abs(dy / c.max) < 0.12 ? 0 : dy / c.max;
+    onMove(nx, ny);
+  }
+  function end(e) {
+    if (active !== e.pointerId) return;
+    active = null;
+    knob.style.transform = 'translate(-50%, -50%)';
+    onEnd();
+  }
+  zone.addEventListener('pointerdown', e => {
+    active = e.pointerId;
+    try { zone.setPointerCapture(e.pointerId); } catch {}
+    handle(e.clientX, e.clientY);
+    e.preventDefault(); e.stopPropagation();
+  });
+  zone.addEventListener('pointermove', e => {
+    if (active !== e.pointerId) return;
+    handle(e.clientX, e.clientY);
+    e.preventDefault();
+  });
+  zone.addEventListener('pointerup', end);
+  zone.addEventListener('pointercancel', end);
+}
+bindStick('moveZone', 'moveKnob', (x, y) => { touchMove.x = x; touchMove.z = y; }, () => { touchMove.x = 0; touchMove.z = 0; });
+bindStick('lookZone', 'lookKnob', (x, y) => { touchLook.x = x; touchLook.y = y; }, () => { touchLook.x = 0; touchLook.y = 0; });
+
+(function bindLookDrag() {
+  const layer = document.getElementById('lookDragLayer');
+  if (!layer) return;
+  let pid = null, lx = 0, ly = 0;
+  layer.addEventListener('pointerdown', e => {
+    pid = e.pointerId; lx = e.clientX; ly = e.clientY;
+    try { layer.setPointerCapture(e.pointerId); } catch {}
+    e.preventDefault();
+  });
+  layer.addEventListener('pointermove', e => {
+    if (pid !== e.pointerId) return;
+    const dx = e.clientX - lx, dy = e.clientY - ly;
+    lx = e.clientX; ly = e.clientY;
+    if (player.onFoot) {
+      player.footYaw -= dx * 0.0055;
+    } else {
+      player.yaw -= dx * 0.005;
+      // slight pitch feel via look when flying only
+      if (player.flying) player.vy += -dy * 0.02;
+    }
+    e.preventDefault();
+  });
+  layer.addEventListener('pointerup', e => { if (pid === e.pointerId) pid = null; });
+  layer.addEventListener('pointercancel', e => { if (pid === e.pointerId) pid = null; });
+})();
+
+function bindHold(id, code) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const down = e => { keys[code] = true; e.preventDefault(); e.stopPropagation(); };
+  const up = e => { keys[code] = false; e.preventDefault(); };
+  el.addEventListener('pointerdown', down);
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointerleave', up);
+  el.addEventListener('pointercancel', up);
+}
+bindHold('touchFlyUp', 'Space');
+bindHold('touchFlyDown', 'ShiftLeft');
+bindHold('touchBrake', 'KeyS');
+document.getElementById('touchWalk')?.addEventListener('pointerdown', e => { tryExitEnterCar(); e.preventDefault(); e.stopPropagation(); });
+document.getElementById('touchUse')?.addEventListener('pointerdown', e => { tryInteract(); e.preventDefault(); e.stopPropagation(); });
+document.getElementById('touchCenter')?.addEventListener('pointerdown', e => {
+  if (player.onFoot) toastHint('👀 Looking ahead');
+  else { player.lookBack = false; toastHint('👀 Camera centered'); }
+  e.preventDefault(); e.stopPropagation();
+});
+
 window.addEventListener('keydown', (e) => {
+  if (isTouchDevice) return; // tablet uses circles only
   keys[e.code] = true;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.code === 'KeyC' && !player.onFoot) player.lookBack = true;
@@ -1756,12 +1948,16 @@ document.getElementById('startBtn').addEventListener('click', () => {
   // Load this tablet's save if any
   const loaded = loadGame();
   player.invuln = 1.5;
-  if (loaded) {
+  if (isTouchDevice) {
+    toastHint(loaded
+      ? '💾 Welcome back! Left circle MOVE · Right circle LOOK · 🚶 WALK · ⛽ USE'
+      : '📱 Left circle = drive · Right = look · 🚶 get out · ⛽ gas/doors');
+  } else if (loaded) {
     toastHint('💾 Welcome back! Loaded save from this tablet');
   } else {
     toastHint('New game on this tablet — progress will auto-save 💾');
-    saveGame(true);
   }
+  if (!loaded) saveGame(true);
 });
 document.getElementById('retryBtn').addEventListener('click', () => {
   initAudio();
@@ -1782,6 +1978,15 @@ function updatePlayer(dt) {
   if (!player.alive) return;
   if (player.invuln > 0) player.invuln -= dt;
 
+  // Touch look stick (car or foot)
+  if (isTouchDevice && (touchLook.x || touchLook.y)) {
+    if (player.onFoot) {
+      player.footYaw -= touchLook.x * 2.4 * dt;
+    } else {
+      player.yaw -= touchLook.x * 2.2 * dt;
+    }
+  }
+
   // ── On foot ──
   if (player.onFoot) {
     const left = keys['KeyA'] || keys['ArrowLeft'];
@@ -1792,13 +1997,18 @@ function updatePlayer(dt) {
     if (right) player.footYaw -= 2.2 * dt;
     const sp = 7;
     const prev = player.footPos.clone();
-    if (fwd) {
-      player.footPos.x += Math.sin(player.footYaw) * sp * dt;
-      player.footPos.z += Math.cos(player.footYaw) * sp * dt;
+    let fx = 0, sx = 0;
+    if (fwd) fx += 1;
+    if (back) fx -= 1;
+    if (isTouchDevice && (touchMove.x || touchMove.z)) {
+      fx += -touchMove.z; // stick up = forward
+      sx += touchMove.x;
     }
-    if (back) {
-      player.footPos.x -= Math.sin(player.footYaw) * sp * dt;
-      player.footPos.z -= Math.cos(player.footYaw) * sp * dt;
+    const len = Math.hypot(fx, sx);
+    if (len > 0.01) {
+      fx /= len; sx /= len;
+      player.footPos.x += (Math.sin(player.footYaw) * fx + Math.cos(player.footYaw) * sx) * sp * dt;
+      player.footPos.z += (Math.cos(player.footYaw) * fx - Math.sin(player.footYaw) * sx) * sp * dt;
     }
     // block walking through buildings unless inside that place
     resolveFootCollision(prev);
@@ -1820,19 +2030,29 @@ function updatePlayer(dt) {
     return;
   }
 
-  const accel = keys['KeyW'] || keys['ArrowUp'];
-  const brake = keys['KeyS'] || keys['ArrowDown'];
-  const left = keys['KeyA'] || keys['ArrowLeft'];
-  const right = keys['KeyD'] || keys['ArrowRight'];
+  let accel = keys['KeyW'] || keys['ArrowUp'];
+  let brake = keys['KeyS'] || keys['ArrowDown'];
+  let left = keys['KeyA'] || keys['ArrowLeft'];
+  let right = keys['KeyD'] || keys['ArrowRight'];
   const flyUp = keys['Space'];
   const flyDown = keys['ShiftLeft'] || keys['ShiftRight'];
+
+  // Tablet drive stick
+  if (isTouchDevice && (touchMove.x || touchMove.z)) {
+    if (touchMove.z < -0.15) accel = true; // stick up = gas
+    if (touchMove.z > 0.15) brake = true;  // stick down = brake
+    if (touchMove.x < -0.2) left = true;
+    if (touchMove.x > 0.2) right = true;
+  }
 
   // Out of gas — car won't move (can still steer a little for drama)
   if (player.fuel <= 0) {
     player.speed *= Math.pow(0.05, dt);
     player.fuel = 0;
     if (Math.abs(player.speed) < 0.5) {
-      toastHint('⛽ OUT OF GAS! Get out (F), walk to Gas Shop, buy a can (E), bring it back!');
+      toastHint(isTouchDevice
+        ? '⛽ OUT OF GAS! Tap 🚶 WALK → go to red gas station → ⛽ USE'
+        : '⛽ OUT OF GAS! Get out (F), walk to Gas Shop, buy a can (E), bring it back!');
     }
   }
 
