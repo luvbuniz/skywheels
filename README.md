@@ -1,6 +1,6 @@
 # SkyWheels
 
-**Fancy flying cars.** A kid-friendly 3D browser game — drive the city, race through a mountain tunnel, soar over the big bridge, and fly whenever you want.
+**Fancy flying cars.** A kid-friendly 3D browser game — drive the city, take the big bridge **over** the mountain, watch for animals, and stay out of the spooky cave!
 
 [![Play Live](https://img.shields.io/badge/▶_Play_Live-SkyWheels-7ad7ff?style=for-the-badge&logo=googlechrome&logoColor=white)](https://luvbuniz.github.io/skywheels/)
 [![GitHub](https://img.shields.io/badge/GitHub-luvbuniz%2Fskywheels-181717?style=for-the-badge&logo=github)](https://github.com/luvbuniz/skywheels)
@@ -12,29 +12,33 @@
 
 **Live game:** [https://luvbuniz.github.io/skywheels/](https://luvbuniz.github.io/skywheels/)
 
-No install. Open the link in Chrome, Edge, or Firefox and hit **START DRIVING**.
+Open in Chrome, Edge, or Firefox and hit **START DRIVING**.
 
 ---
 
 ## About
 
-**SkyWheels** is a free, browser-based driving and flying game. You pilot a super-fancy sports car through:
+**SkyWheels** is a free browser driving & flying game. You pilot a fancy sports car through a neon city, over a giant mountain bridge, past animals in the countryside, and (if you dare) near a dangerous cave.
 
 | Area | What you’ll find |
 |------|------------------|
-| **City** | Roads, tall buildings, street lights, glowing plaza |
-| **Mountain** | Climbing road, rocky peaks, snowy top |
-| **Bridge** | Big span over a gorge with towers & cables |
-| **Tunnel** | Lit tunnel road through the mountain |
-| **Sky** | Other fancy cars flying all around you |
+| **City** | Roads, buildings, lights, plaza — crash = game over |
+| **Mountain** | Solid rock peaks — **no road through it** |
+| **Bridge** | Huge bridge that goes **over** the mountain |
+| **Cave** | Spikes, crystals, lava & bats that can crash you |
+| **Animals** | Deer, sheep, cows, dogs, birds, bats |
+| **Traffic** | Other fancy cars on roads, on the bridge, and in the sky |
 
-Your car can **drive on roads** and **fly into the air**. Other traffic drives the city and mountain routes while flying cars cruise overhead. There’s a **rear-view mirror**, a **minimap**, and first-person or chase camera modes.
-
-Built as a fun project for kids (and grown-ups who still love cool cars).
+### Rules
+- Hit a **building**, **mountain**, **other car**, **animal**, or **cave hazard** → **GAME OVER**
+- You **cannot drive through** solid things
+- Use the **control sign** on the right while you play
 
 ---
 
 ## Controls
+
+Always shown on the in-game control sign (right side):
 
 | Key | Action |
 |-----|--------|
@@ -44,57 +48,34 @@ Built as a fun project for kids (and grown-ups who still love cool cars).
 | **Space** | Fly up |
 | **Shift** | Fly down |
 | **C** | Look behind you |
-| **V** | Switch camera (driver’s seat / chase) |
-| **R** | Reset if you get stuck |
+| **V** | Camera: behind car (default) / close-up |
+| **R** | Restart after crash |
 
-There’s always a **rear-view mirror** in the top-right and a **minimap** at the bottom.
+Default camera is **behind your car** so you can see your fancy car in front of you. Rear-view mirror is always on.
 
 ---
 
 ## Features
 
-- First-person driver’s seat + optional chase camera  
-- Always-on rear-view mirror  
-- Fancy sports cars (chrome, spoilers, underglow, headlights)  
-- AI traffic on roads + flying cars in the sky  
-- City · mountain · bridge · tunnel world  
-- Speedometer, altitude, drive/fly mode badge  
-- Runs entirely in the browser (Three.js)
+- Engine & flying sound effects (Web Audio)
+- Crash sound + game over screen
+- Solid collisions (no ghosting through walls)
+- Bridge path over the mountain
+- Animals that roam and can crash you
+- Hazard cave with spikes, crystals, lava, bats
+- AI traffic on city roads, bridge, and sky
+- Controls panel always visible while playing
+- Minimap + speed + altitude HUD
 
 ---
 
 ## Run locally
 
-Clone or download this repo, then open `index.html` in a modern browser.
-
-If the 3D world stays blank (some browsers block modules from `file://`), use a tiny local server:
-
 ```bash
-# from this folder
 npx --yes serve .
 ```
 
-Then open the URL it prints (often `http://localhost:3000`).
-
----
-
-## Project layout
-
-```
-skywheels/
-├── index.html   # Full game (HTML + CSS + Three.js)
-└── README.md    # This file
-```
-
-No build step, no npm install for players — just static files.
-
----
-
-## Tech
-
-- [Three.js](https://threejs.org/) r160 (CDN)
-- Vanilla JavaScript (ES modules)
-- Hosted with [GitHub Pages](https://pages.github.com/)
+Or open `index.html` in a modern browser.
 
 ---
 
@@ -103,10 +84,8 @@ No build step, no npm install for players — just static files.
 | | |
 |---|---|
 | **Play live** | [luvbuniz.github.io/skywheels](https://luvbuniz.github.io/skywheels/) |
-| **Source code** | [github.com/luvbuniz/skywheels](https://github.com/luvbuniz/skywheels) |
+| **Source** | [github.com/luvbuniz/skywheels](https://github.com/luvbuniz/skywheels) |
 | **Author** | [luvbuniz](https://github.com/luvbuniz) |
-
----
 
 ## License
 
