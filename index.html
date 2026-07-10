@@ -164,19 +164,18 @@
   <div id="overlay">
     <div class="panel">
       <div class="logo">SKYWHEELS</div>
-      <div class="tagline">Fancy Flying Cars • City • Bridge Over Mountain • Cave</div>
+      <div class="tagline">City • Airport • Gas Station • Animals • Monster Cave</div>
       <p class="blurb">
-        Drive the city, take the big bridge <b>over</b> the mountain (not through it!),
-        watch for animals, and stay out of the spooky cave — spikes and crystals can crash you!
-        Hit a building, mountain, car, or hazard and it’s game over.
+        Drive fancy flying cars, walk on sidewalks, visit the airport &amp; shops (enter only through doors!),
+        fill up at the gas station, watch foxes &amp; birds, and don’t wake the cave monster!
       </p>
       <div class="controls">
         <h3>QUICK CONTROLS</h3>
         <ul>
-          <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> — drive &amp; steer</li>
-          <li><kbd>SPACE</kbd> fly up · <kbd>SHIFT</kbd> fly down</li>
-          <li><kbd>C</kbd> look behind · <kbd>V</kbd> camera mode</li>
-          <li>Don’t crash — watch the control sign while you play!</li>
+          <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> — drive or walk</li>
+          <li><kbd>F</kbd> — get out / get in car · <kbd>E</kbd> enter door / use gas</li>
+          <li><kbd>SPACE</kbd> fly up · <kbd>SHIFT</kbd> fly down (in car)</li>
+          <li>Watch fuel! Buy a gas can if you run out ⛽</li>
         </ul>
       </div>
       <button class="primary" id="startBtn" type="button">START DRIVING ✦</button>
@@ -196,26 +195,27 @@
 
   <div id="hud">
     <div class="title-chip">SKYWHEELS</div>
-    <div class="hint">Bridge goes OVER the mountain · Watch animals · Avoid the cave hazards!</div>
+    <div class="hint" id="hintBar">F = walk/drive · E = door or gas · Fill fuel at the gas station ⛽</div>
     <div id="mirror"><canvas id="mirrorCanvas"></canvas><div class="cap">REAR VIEW</div></div>
 
     <div id="controlSign">
       <div class="sign-title">⚠ CONTROLS</div>
-      <div class="row"><span class="keys"><kbd>W</kbd><kbd>↑</kbd></span><span>Gas / go forward</span></div>
-      <div class="row"><span class="keys"><kbd>S</kbd><kbd>↓</kbd></span><span>Brake / reverse</span></div>
-      <div class="row"><span class="keys"><kbd>A</kbd><kbd>D</kbd></span><span>Steer left / right</span></div>
-      <div class="row"><span class="keys"><kbd>SPACE</kbd></span><span><b>Fly up</b> into the sky</span></div>
-      <div class="row"><span class="keys"><kbd>SHIFT</kbd></span><span><b>Fly down</b> / land</span></div>
-      <div class="row"><span class="keys"><kbd>C</kbd></span><span><b>Look behind</b> you</span></div>
-      <div class="row"><span class="keys"><kbd>V</kbd></span><span>Camera: behind car / close</span></div>
+      <div class="row"><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Drive or walk</span></div>
+      <div class="row"><span class="keys"><kbd>F</kbd></span><span><b>Get out / in car</b></span></div>
+      <div class="row"><span class="keys"><kbd>E</kbd></span><span>Door / gas pump / buy can</span></div>
+      <div class="row"><span class="keys"><kbd>SPACE</kbd></span><span>Fly up (in car)</span></div>
+      <div class="row"><span class="keys"><kbd>SHIFT</kbd></span><span>Fly down</span></div>
+      <div class="row"><span class="keys"><kbd>C</kbd></span><span>Look behind</span></div>
+      <div class="row"><span class="keys"><kbd>V</kbd></span><span>Camera mode</span></div>
       <div class="row"><span class="keys"><kbd>R</kbd></span><span>Restart after crash</span></div>
-      <div class="warn">💥 Hit a building, mountain, car, animal, or cave hazard = GAME OVER</div>
+      <div class="warn">⛽ No fuel = car stops · 👾 Cave monster is dangerous · Enter buildings only through doors!</div>
     </div>
 
     <div class="speedo">
       <div class="label">Speed</div>
       <div><span class="value" id="speedVal">0</span><span class="unit">mph</span></div>
       <div class="alt">Altitude: <span id="altVal">0</span> ft</div>
+      <div class="alt">Fuel: <span id="fuelVal">100</span>% · Cans: <span id="canVal">0</span></div>
       <div class="mode drive" id="modeBadge">DRIVE</div>
     </div>
     <div class="look-badge" id="lookBadge">LOOKING BACK</div>
@@ -811,6 +811,44 @@ function makeDog() {
   return g;
 }
 
+function makeFox() {
+  const g = new THREE.Group();
+  const body = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.35, 0.75), makeMat(0xff8844, 0.1, 0.85)));
+  body.position.y = 0.45; g.add(body);
+  const head = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.28, 0.32), makeMat(0xff8844, 0.1, 0.85)));
+  head.position.set(0, 0.55, 0.45); g.add(head);
+  const earL = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 5), makeMat(0xff8844, 0.1, 0.85));
+  earL.position.set(-0.1, 0.75, 0.42); g.add(earL);
+  const earR = earL.clone(); earR.position.x = 0.1; g.add(earR);
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.2), makeMat(0xfff0e0, 0.05, 0.9));
+  chest.position.set(0, 0.4, 0.25); g.add(chest);
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.5, 6), makeMat(0xfff5ee, 0.1, 0.85));
+  tail.rotation.x = Math.PI / 2; tail.position.set(0, 0.5, -0.55); g.add(tail);
+  for (const [lx, lz] of [[-0.12, 0.22], [0.12, 0.22], [-0.12, -0.22], [0.12, -0.22]]) {
+    const leg = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.35, 5), makeMat(0x222222, 0.1, 0.85)));
+    leg.position.set(lx, 0.18, lz); g.add(leg);
+  }
+  return g;
+}
+
+function makePerson(shirtColor = 0x4488ff) {
+  const g = new THREE.Group();
+  const body = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.55, 0.25), makeMat(shirtColor, 0.15, 0.7)));
+  body.position.y = 1.05; g.add(body);
+  const head = addShadow(new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), makeMat(0xffd0b0, 0.1, 0.8)));
+  head.position.y = 1.5; g.add(head);
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), makeMat(0x3a2818, 0.1, 0.9));
+  hair.position.y = 1.55; g.add(hair);
+  const legL = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.5, 0.14), makeMat(0x334455, 0.15, 0.8)));
+  legL.position.set(-0.1, 0.4, 0); g.add(legL);
+  const legR = legL.clone(); legR.position.x = 0.1; g.add(legR);
+  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.1), makeMat(shirtColor, 0.15, 0.7));
+  armL.position.set(-0.28, 1.1, 0); g.add(armL);
+  const armR = armL.clone(); armR.position.x = 0.28; g.add(armR);
+  g.userData.legs = [legL, legR];
+  return g;
+}
+
 function spawnAnimal(kind, x, z, roamR = 25) {
   let mesh;
   if (kind === 'deer') mesh = makeDeer();
@@ -818,6 +856,7 @@ function spawnAnimal(kind, x, z, roamR = 25) {
   else if (kind === 'cow') mesh = makeCow();
   else if (kind === 'bird') mesh = makeBird();
   else if (kind === 'bat') mesh = makeBat();
+  else if (kind === 'fox') mesh = makeFox();
   else mesh = makeDog();
   const flying = kind === 'bird' || kind === 'bat';
   mesh.position.set(x, flying ? 12 + Math.random() * 20 : 0, z);
@@ -829,20 +868,56 @@ function spawnAnimal(kind, x, z, roamR = 25) {
     angle: Math.random() * Math.PI * 2,
     speed: flying ? 6 + Math.random() * 4 : 2 + Math.random() * 2,
     phase: Math.random() * Math.PI * 2,
-    hitR: kind === 'cow' ? 1.6 : kind === 'deer' ? 1.3 : kind === 'sheep' ? 1.1 : flying ? 0.9 : 1.0,
+    hitR: kind === 'cow' ? 1.6 : kind === 'deer' ? 1.3 : kind === 'sheep' ? 1.1 : kind === 'fox' ? 1.15 : flying ? 0.9 : 1.0,
   });
 }
 
-// Animals around city parks / countryside / mountain foothills / cave bats
+// Animals: countryside + city edges + lots of birds + foxes
 for (let i = 0; i < 6; i++) spawnAnimal('deer', -180 + Math.random() * 80, 80 + Math.random() * 100, 30);
 for (let i = 0; i < 5; i++) spawnAnimal('sheep', 160 + Math.random() * 60, -40 + Math.random() * 80, 22);
 for (let i = 0; i < 4; i++) spawnAnimal('cow', -100 + Math.random() * 50, -180 + Math.random() * 40, 20);
 for (let i = 0; i < 5; i++) spawnAnimal('dog', 30 + Math.random() * 100, 140 + Math.random() * 40, 18);
-for (let i = 0; i < 10; i++) spawnAnimal('bird', (Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300, 80);
+for (let i = 0; i < 8; i++) spawnAnimal('fox', -50 + Math.random() * 100, 200 + Math.random() * 80, 28);
+for (let i = 0; i < 6; i++) spawnAnimal('fox', 100 + Math.random() * 60, -100 + Math.random() * 50, 22);
+for (let i = 0; i < 18; i++) spawnAnimal('bird', (Math.random() - 0.5) * 400, (Math.random() - 0.5) * 400, 90);
 for (let i = 0; i < 8; i++) {
   spawnAnimal('bat', WORLD.mountainX - 70 + (Math.random() - 0.5) * 20, WORLD.mountainZ + 10 + (Math.random() - 0.5) * 20, 18);
   animals[animals.length - 1].mesh.position.y = 6 + Math.random() * 10;
   animals[animals.length - 1].home.y = animals[animals.length - 1].mesh.position.y;
+}
+
+// ─── Pedestrians on sidewalks ────────────────────────────────
+const pedestrians = [];
+const shirtColors = [0xff6688, 0x44aaff, 0x66dd88, 0xffcc44, 0xcc66ff, 0xff8844, 0xffffff, 0x333355];
+const sidewalkPaths = [
+  // outer sidewalks around city grid
+  [new THREE.Vector3(-10, 0, -140), new THREE.Vector3(-10, 0, 140)],
+  [new THREE.Vector3(10, 0, 140), new THREE.Vector3(10, 0, -140)],
+  [new THREE.Vector3(-140, 0, -10), new THREE.Vector3(140, 0, -10)],
+  [new THREE.Vector3(140, 0, 10), new THREE.Vector3(-140, 0, 10)],
+  [new THREE.Vector3(-70, 0, -130), new THREE.Vector3(70, 0, -130)],
+  [new THREE.Vector3(70, 0, 130), new THREE.Vector3(-70, 0, 130)],
+  [new THREE.Vector3(-130, 0, 70), new THREE.Vector3(-130, 0, -70)],
+  [new THREE.Vector3(130, 0, -70), new THREE.Vector3(130, 0, 70)],
+];
+function spawnPedestrian(path) {
+  const mesh = makePerson(shirtColors[(Math.random() * shirtColors.length) | 0]);
+  const t = Math.random();
+  const a = path[0], b = path[1];
+  mesh.position.set(
+    THREE.MathUtils.lerp(a.x, b.x, t),
+    0,
+    THREE.MathUtils.lerp(a.z, b.z, t)
+  );
+  scene.add(mesh);
+  pedestrians.push({
+    mesh, path, t, dir: Math.random() > 0.5 ? 1 : -1,
+    speed: 1.2 + Math.random() * 1.2,
+    phase: Math.random() * 10,
+  });
+}
+for (let i = 0; i < 28; i++) {
+  spawnPedestrian(sidewalkPaths[i % sidewalkPaths.length]);
 }
 
 // ─── Fancy cars ──────────────────────────────────────────────
@@ -931,7 +1006,191 @@ const player = {
   maxFlySpeed: 52,
   alive: true,
   invuln: 0,
+  onFoot: false,
+  fuel: 100,
+  gasCans: 0,
+  inside: null, // enterable place id when indoors
+  footPos: new THREE.Vector3(0, 0, 40),
+  footYaw: 0,
 };
+
+// Player on foot avatar
+const playerPerson = makePerson(0xff4466);
+playerPerson.visible = false;
+scene.add(playerPerson);
+
+// ─── Enterable places (doors only) ───────────────────────────
+const enterables = [];
+function addEnterable(cfg) {
+  enterables.push(cfg);
+  // door visual
+  const door = addShadow(new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.2, 0.25), makeMat(0x5a3a28, 0.3, 0.6)));
+  door.position.copy(cfg.door);
+  door.position.y = 1.6;
+  scene.add(door);
+  const mat = makeMat(0x88ddff, 0.4, 0.3, 0x44aaff, 0.3);
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), makeMat(0xffd060, 0.8, 0.2));
+  knob.position.set(cfg.door.x + 0.8, 1.5, cfg.door.z + 0.2);
+  scene.add(knob);
+  // sign above door
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 0.15), makeMat(0x224466, 0.4, 0.4, 0x4488ff, 0.25));
+  sign.position.set(cfg.door.x, 3.6, cfg.door.z);
+  scene.add(sign);
+}
+
+// ─── Gas station ─────────────────────────────────────────────
+const GAS = { x: -200, z: 40 };
+(function buildGasStation() {
+  // canopy
+  const canopy = addShadow(new THREE.Mesh(new THREE.BoxGeometry(28, 0.6, 18), makeMat(0xff3344, 0.4, 0.4)));
+  canopy.position.set(GAS.x, 5.5, GAS.z); scene.add(canopy);
+  for (const sx of [-10, 10]) {
+    const post = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 5.5, 8), makeMat(0xcccccc, 0.6, 0.35)));
+    post.position.set(GAS.x + sx, 2.75, GAS.z); scene.add(post);
+  }
+  // pumps
+  for (let i = 0; i < 4; i++) {
+    const px = GAS.x - 9 + i * 6;
+    const pump = addShadow(new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 1.0), makeMat(0xeeeeee, 0.5, 0.4)));
+    pump.position.set(px, 1.1, GAS.z); scene.add(pump);
+    const hose = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), makeMat(0x222222, 0.2, 0.7));
+    hose.position.set(px + 0.5, 1.4, GAS.z + 0.4); scene.add(hose);
+    const light = new THREE.PointLight(0xffaa44, 0.5, 12, 2);
+    light.position.set(px, 4.8, GAS.z); scene.add(light);
+  }
+  // shop building
+  const shop = addShadow(new THREE.Mesh(new THREE.BoxGeometry(14, 6, 12), makeMat(0xf0f4f8, 0.35, 0.5)));
+  shop.position.set(GAS.x, 3, GAS.z - 16); scene.add(shop);
+  addBoxCollider(GAS.x, 3, GAS.z - 16, 7.2, 3.2, 6.2, true, 'the gas shop wall');
+  // shop interior lights
+  const shopLight = new THREE.PointLight(0xffeecc, 0.8, 20, 2);
+  shopLight.position.set(GAS.x, 5, GAS.z - 16); scene.add(shopLight);
+  // gas can display (visual)
+  for (let i = 0; i < 3; i++) {
+    const can = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.4), makeMat(0xff4400, 0.3, 0.5, 0xff2200, 0.15)));
+    can.position.set(GAS.x - 2 + i * 2, 0.5, GAS.z - 14); scene.add(can);
+  }
+  // pad road
+  placeRoad(GAS.x, GAS.z + 20, 50, 0);
+  placeRoad(GAS.x + 40, GAS.z, 90, Math.PI / 2);
+
+  addEnterable({
+    id: 'gas_shop',
+    name: 'Gas Shop',
+    door: new THREE.Vector3(GAS.x, 0, GAS.z - 10),
+    inside: new THREE.Vector3(GAS.x, 0, GAS.z - 16),
+    outside: new THREE.Vector3(GAS.x, 0, GAS.z - 8),
+    bounds: { minX: GAS.x - 6, maxX: GAS.x + 6, minZ: GAS.z - 21, maxZ: GAS.z - 11 },
+    kind: 'gas_shop',
+  });
+})();
+
+// ─── Airport ─────────────────────────────────────────────────
+const AIRPORT = { x: 280, z: -80 };
+(function buildAirport() {
+  // terminal
+  const term = addShadow(new THREE.Mesh(new THREE.BoxGeometry(50, 12, 22), makeMat(0xd8e4f0, 0.45, 0.35)));
+  term.position.set(AIRPORT.x, 6, AIRPORT.z); scene.add(term);
+  addBoxCollider(AIRPORT.x, 6, AIRPORT.z, 25.5, 6.5, 11.5, true, 'the airport terminal');
+  // glass front strip
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(48, 8, 0.4), makeMat(0x88ccff, 0.7, 0.15, 0x4488cc, 0.2));
+  glass.position.set(AIRPORT.x, 5, AIRPORT.z + 11.2); scene.add(glass);
+  // control tower
+  const tower = addShadow(new THREE.Mesh(new THREE.BoxGeometry(6, 22, 6), makeMat(0xc0c8d4, 0.5, 0.35)));
+  tower.position.set(AIRPORT.x + 30, 11, AIRPORT.z - 5); scene.add(tower);
+  addBoxCollider(AIRPORT.x + 30, 11, AIRPORT.z - 5, 3.2, 11.5, 3.2, true, 'the control tower');
+  const cabin = addShadow(new THREE.Mesh(new THREE.BoxGeometry(10, 4, 10), makeMat(0x88aacc, 0.6, 0.25, 0x66aaff, 0.2)));
+  cabin.position.set(AIRPORT.x + 30, 24, AIRPORT.z - 5); scene.add(cabin);
+  // runway
+  const runway = addShadow(new THREE.Mesh(new THREE.BoxGeometry(28, 0.25, 220), makeMat(0x2a2e36, 0.15, 0.75)), false, true);
+  runway.position.set(AIRPORT.x + 70, 0.12, AIRPORT.z); scene.add(runway);
+  const rline = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.28, 200), lineMat);
+  rline.position.set(AIRPORT.x + 70, 0.2, AIRPORT.z); scene.add(rline);
+  // parked plane (simple)
+  const plane = new THREE.Group();
+  const fuselage = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 14, 12), makeMat(0xf0f4f8, 0.5, 0.35)));
+  fuselage.rotation.z = Math.PI / 2; fuselage.position.y = 2; plane.add(fuselage);
+  const wing = addShadow(new THREE.Mesh(new THREE.BoxGeometry(16, 0.25, 3), makeMat(0xe8eef8, 0.5, 0.35)));
+  wing.position.y = 2; plane.add(wing);
+  const tail = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 2), makeMat(0xff4466, 0.4, 0.4)));
+  tail.position.set(-6, 3.5, 0); plane.add(tail);
+  plane.position.set(AIRPORT.x + 55, 0, AIRPORT.z - 50);
+  scene.add(plane);
+  // airport parking road
+  placeRoad(AIRPORT.x - 40, AIRPORT.z + 40, 80, Math.PI / 2);
+  placeRoad(AIRPORT.x, AIRPORT.z + 80, 100, 0);
+  // sidewalk people near airport
+  for (let i = 0; i < 8; i++) {
+    spawnPedestrian([
+      new THREE.Vector3(AIRPORT.x - 20, 0, AIRPORT.z + 20),
+      new THREE.Vector3(AIRPORT.x + 20, 0, AIRPORT.z + 20),
+    ]);
+  }
+  addEnterable({
+    id: 'airport',
+    name: 'Airport Terminal',
+    door: new THREE.Vector3(AIRPORT.x, 0, AIRPORT.z + 11.5),
+    inside: new THREE.Vector3(AIRPORT.x, 0, AIRPORT.z),
+    outside: new THREE.Vector3(AIRPORT.x, 0, AIRPORT.z + 14),
+    bounds: { minX: AIRPORT.x - 24, maxX: AIRPORT.x + 24, minZ: AIRPORT.z - 10, maxZ: AIRPORT.z + 10 },
+    kind: 'airport',
+  });
+  // interior floor glow for when inside
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(46, 0.15, 18), makeMat(0xa8b8c8, 0.3, 0.5));
+  floor.position.set(AIRPORT.x, 0.2, AIRPORT.z); scene.add(floor);
+  const seats = [];
+  for (let i = 0; i < 6; i++) {
+    const seat = addShadow(new THREE.Mesh(new THREE.BoxGeometry(2, 0.6, 0.8), makeMat(0x4466aa, 0.3, 0.6)));
+    seat.position.set(AIRPORT.x - 15 + i * 6, 0.5, AIRPORT.z - 4); scene.add(seat);
+  }
+})();
+
+// ─── Monster cave ────────────────────────────────────────────
+const monster = { mesh: null, home: new THREE.Vector3(), angle: 0, chase: false };
+(function buildMonsterCave() {
+  const cx = -280, cz = 200;
+  // big cave rock
+  const rock = addShadow(new THREE.Mesh(new THREE.SphereGeometry(22, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), makeMat(0x3a3a40, 0.15, 0.9)));
+  rock.position.set(cx, 8, cz); rock.rotation.z = Math.PI; scene.add(rock);
+  addBoxCollider(cx + 4, 10, cz, 14, 12, 14, true, 'the monster cave wall');
+  // entrance
+  const arch = addShadow(new THREE.Mesh(new THREE.TorusGeometry(8, 1.4, 8, 16, Math.PI), makeMat(0x4a4848, 0.2, 0.85)));
+  arch.position.set(cx - 18, 7, cz); arch.rotation.y = Math.PI / 2; arch.rotation.z = Math.PI; scene.add(arch);
+  // spooky lights
+  const red = new THREE.PointLight(0xff2200, 1.2, 35, 2);
+  red.position.set(cx, 4, cz); scene.add(red);
+  // danger sign
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(5, 2.5, 0.3), makeMat(0xff2200, 0.3, 0.5, 0xff0000, 0.4));
+  sign.position.set(cx - 24, 3, cz + 10); scene.add(sign);
+
+  // MONSTER
+  const m = new THREE.Group();
+  const body = addShadow(new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), makeMat(0x2a1840, 0.2, 0.6, 0x6622aa, 0.35)));
+  body.position.y = 2.4; m.add(body);
+  const head = addShadow(new THREE.Mesh(new THREE.SphereGeometry(1.3, 12, 12), makeMat(0x3a2060, 0.2, 0.55, 0x8844cc, 0.3)));
+  head.position.y = 4.2; m.add(head);
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), makeMat(0xff2200, 0.2, 0.3, 0xff0000, 1));
+  eyeL.position.set(-0.45, 4.4, 1.0); m.add(eyeL);
+  const eyeR = eyeL.clone(); eyeR.position.x = 0.45; m.add(eyeR);
+  for (let i = 0; i < 4; i++) {
+    const leg = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 2.2, 6), makeMat(0x221030, 0.2, 0.7)));
+    const a = (i / 4) * Math.PI * 2 + 0.4;
+    leg.position.set(Math.cos(a) * 1.4, 1.1, Math.sin(a) * 1.4); m.add(leg);
+  }
+  const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.25, 1.2, 6), makeMat(0x111018, 0.3, 0.5));
+  hornL.position.set(-0.6, 5.4, 0); m.add(hornL);
+  const hornR = hornL.clone(); hornR.position.x = 0.6; m.add(hornR);
+  m.position.set(cx, 0, cz);
+  scene.add(m);
+  monster.mesh = m;
+  monster.home.set(cx, 0, cz);
+  monster.angle = 0;
+  monster.hitR = 3.2;
+  monster.zone = { x: cx, z: cz, r: 35 };
+
+  // path to cave
+  placeRoad(cx + 40, cz, 80, Math.PI / 2);
+})();
 
 // ─── AI traffic ──────────────────────────────────────────────
 const aiCars = [];
@@ -1119,8 +1378,10 @@ const keys = Object.create(null);
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
-  if (e.code === 'KeyC') player.lookBack = true;
+  if (e.code === 'KeyC' && !player.onFoot) player.lookBack = true;
   if (e.code === 'KeyV' && !e.repeat) player.cockpit = !player.cockpit;
+  if (e.code === 'KeyF' && !e.repeat) tryExitEnterCar();
+  if (e.code === 'KeyE' && !e.repeat) tryInteract();
   if (e.code === 'KeyR') {
     if (!player.alive) retryGame();
     else resetPlayer();
@@ -1135,8 +1396,111 @@ function resetPlayer() {
   playerCar.position.set(0, 0.5, 40);
   player.speed = 0; player.yaw = 0; player.vy = 0;
   player.flying = false; player.alive = true; player.invuln = 1.2;
+  player.onFoot = false; player.fuel = 100; player.gasCans = 0; player.inside = null;
+  player.footPos.set(0, 0, 40); player.footYaw = 0;
   playerCar.rotation.set(0, 0, 0);
   playerCar.visible = true;
+  playerPerson.visible = false;
+}
+
+function toastHint(msg) {
+  const h = document.getElementById('hintBar');
+  if (h) h.textContent = msg;
+}
+
+function tryExitEnterCar() {
+  if (!player.alive) return;
+  if (player.onFoot) {
+    // get in if near car
+    const d = player.footPos.distanceTo(playerCar.position);
+    if (d < 5) {
+      player.onFoot = false;
+      player.inside = null;
+      playerPerson.visible = false;
+      playerCar.visible = true;
+      player.yaw = player.footYaw;
+      toastHint('Back in the car! Drive carefully ⛽');
+    } else {
+      toastHint('Walk closer to your car to get in (F)');
+    }
+  } else {
+    // get out if slow enough
+    if (Math.abs(player.speed) > 4) {
+      toastHint('Slow down before getting out!');
+      return;
+    }
+    player.onFoot = true;
+    player.speed = 0; player.vy = 0; player.flying = false;
+    player.footPos.set(
+      playerCar.position.x + Math.sin(player.yaw) * -3,
+      0,
+      playerCar.position.z + Math.cos(player.yaw) * -3
+    );
+    player.footYaw = player.yaw;
+    playerPerson.visible = true;
+    playerCar.visible = true; // parked car stays visible
+    toastHint('Walking! F = get in car · E = open doors / use gas');
+  }
+}
+
+function tryInteract() {
+  if (!player.alive) return;
+  const pos = player.onFoot ? player.footPos : playerCar.position;
+
+  // Gas pump refill (in car, near pumps)
+  if (!player.onFoot) {
+    const nearPump = Math.hypot(playerCar.position.x - GAS.x, playerCar.position.z - GAS.z) < 16;
+    if (nearPump && playerCar.position.y < 4) {
+      player.fuel = 100;
+      toastHint('⛽ Tank full! Ready to roll!');
+      return;
+    }
+    // use gas can on car
+    if (player.gasCans > 0 && Math.abs(player.speed) < 2) {
+      player.gasCans -= 1;
+      player.fuel = Math.min(100, player.fuel + 45);
+      toastHint('⛽ Poured a gas can into the tank!');
+      return;
+    }
+  }
+
+  // On foot: buy gas can inside shop, enter/exit doors
+  if (player.onFoot) {
+    // Buy can inside gas shop
+    if (player.inside === 'gas_shop') {
+      player.gasCans += 1;
+      toastHint('🛒 Bought a gas can! Carry it to your car and press E');
+      return;
+    }
+    // Use can near car while on foot
+    if (player.gasCans > 0 && player.footPos.distanceTo(playerCar.position) < 5) {
+      player.gasCans -= 1;
+      player.fuel = Math.min(100, player.fuel + 45);
+      toastHint('⛽ Filled the car from a gas can!');
+      return;
+    }
+    // Door enter/exit
+    if (player.inside) {
+      const place = enterables.find(e => e.id === player.inside);
+      if (place) {
+        player.inside = null;
+        player.footPos.copy(place.outside);
+        toastHint(`Left the ${place.name}`);
+        return;
+      }
+    }
+    for (const place of enterables) {
+      if (player.footPos.distanceTo(place.door) < 4) {
+        player.inside = place.id;
+        player.footPos.copy(place.inside);
+        toastHint(`Entered ${place.name} through the door! (E to leave)`);
+        return;
+      }
+    }
+    toastHint('Find a door (airport / gas shop) or stand by a gas pump with the car');
+  } else {
+    toastHint('Park at gas pumps and press E · Or F to walk to doors');
+  }
 }
 
 function gameOver(reason) {
@@ -1281,12 +1645,59 @@ function updatePlayer(dt) {
   if (!player.alive) return;
   if (player.invuln > 0) player.invuln -= dt;
 
+  // ── On foot ──
+  if (player.onFoot) {
+    const left = keys['KeyA'] || keys['ArrowLeft'];
+    const right = keys['KeyD'] || keys['ArrowRight'];
+    const fwd = keys['KeyW'] || keys['ArrowUp'];
+    const back = keys['KeyS'] || keys['ArrowDown'];
+    if (left) player.footYaw += 2.2 * dt;
+    if (right) player.footYaw -= 2.2 * dt;
+    const sp = 7;
+    const prev = player.footPos.clone();
+    if (fwd) {
+      player.footPos.x += Math.sin(player.footYaw) * sp * dt;
+      player.footPos.z += Math.cos(player.footYaw) * sp * dt;
+    }
+    if (back) {
+      player.footPos.x -= Math.sin(player.footYaw) * sp * dt;
+      player.footPos.z -= Math.cos(player.footYaw) * sp * dt;
+    }
+    // block walking through buildings unless inside that place
+    resolveFootCollision(prev);
+    player.footPos.y = 0;
+    playerPerson.position.set(player.footPos.x, 0, player.footPos.z);
+    playerPerson.rotation.y = player.footYaw;
+    playerPerson.visible = true;
+    // walk bob
+    if (fwd || back) {
+      const bob = Math.abs(Math.sin(performance.now() * 0.012)) * 0.05;
+      playerPerson.position.y = bob;
+      if (playerPerson.userData.legs) {
+        playerPerson.userData.legs[0].rotation.x = Math.sin(performance.now() * 0.012) * 0.5;
+        playerPerson.userData.legs[1].rotation.x = -Math.sin(performance.now() * 0.012) * 0.5;
+      }
+    }
+    // monster while walking
+    checkMonsterHit(player.footPos);
+    return;
+  }
+
   const accel = keys['KeyW'] || keys['ArrowUp'];
   const brake = keys['KeyS'] || keys['ArrowDown'];
   const left = keys['KeyA'] || keys['ArrowLeft'];
   const right = keys['KeyD'] || keys['ArrowRight'];
   const flyUp = keys['Space'];
   const flyDown = keys['ShiftLeft'] || keys['ShiftRight'];
+
+  // Out of gas — car won't move (can still steer a little for drama)
+  if (player.fuel <= 0) {
+    player.speed *= Math.pow(0.05, dt);
+    player.fuel = 0;
+    if (Math.abs(player.speed) < 0.5) {
+      toastHint('⛽ OUT OF GAS! Get out (F), walk to Gas Shop, buy a can (E), bring it back!');
+    }
+  }
 
   const steer = (left ? 1 : 0) + (right ? -1 : 0);
   const turnRate = 1.55 + Math.min(Math.abs(player.speed) / 40, 1) * 0.75;
@@ -1297,12 +1708,22 @@ function updatePlayer(dt) {
   }
 
   const maxSpd = player.flying ? player.maxFlySpeed : player.maxSpeed;
-  if (accel) player.speed += 26 * dt;
-  if (brake) player.speed -= 30 * dt;
+  if (player.fuel > 0) {
+    if (accel) player.speed += 26 * dt;
+    if (brake) player.speed -= 30 * dt;
+  } else {
+    if (brake) player.speed -= 20 * dt;
+  }
   if (!accel && !brake) player.speed *= Math.pow(0.22, dt);
   player.speed = THREE.MathUtils.clamp(player.speed, -maxSpd * 0.35, maxSpd);
 
-  if (flyUp) {
+  // Burn fuel while moving or flying
+  if (player.fuel > 0 && (Math.abs(player.speed) > 1 || player.flying)) {
+    const burn = (Math.abs(player.speed) * 0.012 + (player.flying ? 0.8 : 0.15)) * dt;
+    player.fuel = Math.max(0, player.fuel - burn);
+  }
+
+  if (player.fuel > 0 && flyUp) {
     player.flying = true;
     player.vy += 22 * dt;
   } else if (flyDown && (player.flying || playerCar.position.y > 0.6)) {
@@ -1358,10 +1779,52 @@ function updatePlayer(dt) {
   playerCar.rotation.z = THREE.MathUtils.lerp(playerCar.rotation.z, bank, 1 - Math.pow(0.01, dt));
 
   resolveCollisions();
-  // if collision push left us overlapping fatally, already game over
+  checkMonsterHit(playerCar.position);
   if (!player.alive) {
-    // slight bounce back visual
     playerCar.position.lerp(prev, 0.3);
+  }
+}
+
+function resolveFootCollision(prev) {
+  // Keep pedestrians out of solid colliders unless inside matching place
+  const pos = player.footPos;
+  for (const c of colliders) {
+    if (pos.x > c.min.x && pos.x < c.max.x && pos.z > c.min.z && pos.z < c.max.z && pos.y < c.max.y) {
+      // allow if inside an enterable that overlaps this area
+      let allowed = false;
+      if (player.inside) {
+        const place = enterables.find(e => e.id === player.inside);
+        if (place && pos.x > place.bounds.minX && pos.x < place.bounds.maxX &&
+            pos.z > place.bounds.minZ && pos.z < place.bounds.maxZ) {
+          allowed = true;
+        }
+      }
+      // door gap: near any door from outside — small allowance
+      for (const place of enterables) {
+        if (pos.distanceTo(place.door) < 2.5) allowed = true;
+      }
+      if (!allowed) {
+        pos.copy(prev);
+        return;
+      }
+    }
+  }
+  // If marked inside, keep within bounds
+  if (player.inside) {
+    const place = enterables.find(e => e.id === player.inside);
+    if (place) {
+      pos.x = THREE.MathUtils.clamp(pos.x, place.bounds.minX + 0.5, place.bounds.maxX - 0.5);
+      pos.z = THREE.MathUtils.clamp(pos.z, place.bounds.minZ + 0.5, place.bounds.maxZ - 0.5);
+    }
+  }
+}
+
+function checkMonsterHit(pos) {
+  if (!monster.mesh || player.invuln > 0) return;
+  const dx = pos.x - monster.mesh.position.x;
+  const dz = pos.z - monster.mesh.position.z;
+  if (Math.hypot(dx, dz) < monster.hitR && Math.abs((pos.y || 0) - monster.mesh.position.y) < 5) {
+    gameOver('The cave monster got you! 👾');
   }
 }
 
@@ -1424,12 +1887,77 @@ function updateAnimals(dt) {
   }
 }
 
+function updatePedestrians(dt) {
+  const t = performance.now() * 0.001;
+  for (const p of pedestrians) {
+    p.t += p.dir * (p.speed * 0.04) * dt;
+    if (p.t > 1) { p.t = 1; p.dir = -1; }
+    if (p.t < 0) { p.t = 0; p.dir = 1; }
+    const a = p.path[0], b = p.path[1];
+    const x = THREE.MathUtils.lerp(a.x, b.x, p.t);
+    const z = THREE.MathUtils.lerp(a.z, b.z, p.t);
+    const dx = x - p.mesh.position.x;
+    const dz = z - p.mesh.position.z;
+    p.mesh.position.x = x;
+    p.mesh.position.z = z;
+    if (Math.hypot(dx, dz) > 0.001) p.mesh.rotation.y = Math.atan2(dx, dz);
+    p.mesh.position.y = Math.abs(Math.sin(t * 8 + p.phase)) * 0.04;
+    if (p.mesh.userData.legs) {
+      p.mesh.userData.legs[0].rotation.x = Math.sin(t * 10 + p.phase) * 0.45;
+      p.mesh.userData.legs[1].rotation.x = -Math.sin(t * 10 + p.phase) * 0.45;
+    }
+  }
+}
+
+function updateMonster(dt) {
+  if (!monster.mesh) return;
+  const target = player.onFoot ? player.footPos : playerCar.position;
+  const dx = target.x - monster.mesh.position.x;
+  const dz = target.z - monster.mesh.position.z;
+  const dist = Math.hypot(dx, dz);
+  const inZone = Math.hypot(target.x - monster.zone.x, target.z - monster.zone.z) < monster.zone.r + 20;
+  monster.chase = inZone && dist < 55;
+  if (monster.chase) {
+    const sp = 7.5 * dt;
+    monster.mesh.position.x += (dx / (dist || 1)) * sp;
+    monster.mesh.position.z += (dz / (dist || 1)) * sp;
+    monster.mesh.rotation.y = Math.atan2(dx, dz);
+    monster.mesh.position.y = Math.abs(Math.sin(performance.now() * 0.008)) * 0.4;
+  } else {
+    monster.angle += dt * 0.6;
+    monster.mesh.position.x = monster.home.x + Math.cos(monster.angle) * 8;
+    monster.mesh.position.z = monster.home.z + Math.sin(monster.angle) * 8;
+    monster.mesh.rotation.y = monster.angle + Math.PI / 2;
+  }
+}
+
 function updateCamera(dt) {
-  const lookBack = player.lookBack;
+  const lookBack = player.lookBack && !player.onFoot;
   document.getElementById('lookBadge').classList.toggle('on', lookBack);
-  playerCar.visible = !player.cockpit || lookBack || !player.alive;
 
   let ideal, lookAt;
+
+  if (player.onFoot) {
+    playerPerson.visible = true;
+    const yaw = player.footYaw;
+    const pos = player.footPos;
+    ideal = new THREE.Vector3(
+      pos.x - Math.sin(yaw) * 5,
+      3.2,
+      pos.z - Math.cos(yaw) * 5
+    );
+    lookAt = new THREE.Vector3(pos.x + Math.sin(yaw) * 4, 1.4, pos.z + Math.cos(yaw) * 4);
+    camera.fov = 68;
+    camera.updateProjectionMatrix();
+    camera.position.lerp(ideal, 1 - Math.pow(0.0004, dt));
+    camera.lookAt(lookAt);
+    rearCamera.position.copy(camera.position);
+    rearCamera.lookAt(lookAt);
+    return;
+  }
+
+  playerCar.visible = !player.cockpit || lookBack || !player.alive;
+
   if (player.cockpit && !lookBack) {
     ideal = new THREE.Vector3(
       playerCar.position.x + Math.sin(player.yaw) * 0.35,
@@ -1456,7 +1984,6 @@ function updateCamera(dt) {
     camera.fov = 70;
     playerCar.visible = true;
   } else {
-    // Behind the car (default) — car is in front of you
     const dist = player.flying ? 13 : 10.5;
     const height = player.flying ? 5.2 : 3.6;
     ideal = new THREE.Vector3(
@@ -1488,10 +2015,17 @@ function updateCamera(dt) {
 }
 
 function updateHUD() {
-  document.getElementById('speedVal').textContent = Math.round(Math.abs(player.speed) * 2.8);
+  const spd = player.onFoot ? 0 : Math.abs(player.speed) * 2.8;
+  document.getElementById('speedVal').textContent = Math.round(spd);
   document.getElementById('altVal').textContent = Math.round(Math.max(0, (playerCar.position.y - 0.5) * 3.2));
+  document.getElementById('fuelVal').textContent = Math.round(player.fuel);
+  document.getElementById('canVal').textContent = player.gasCans;
   const badge = document.getElementById('modeBadge');
-  if (player.flying || playerCar.position.y > 1.5) {
+  if (player.onFoot) {
+    badge.textContent = player.inside ? 'INSIDE' : 'WALK'; badge.className = 'mode fly';
+  } else if (player.fuel <= 0) {
+    badge.textContent = 'NO GAS'; badge.className = 'mode fly';
+  } else if (player.flying || playerCar.position.y > 1.5) {
     badge.textContent = 'FLY'; badge.className = 'mode fly';
   } else {
     badge.textContent = 'DRIVE'; badge.className = 'mode drive';
@@ -1501,25 +2035,27 @@ function updateHUD() {
   mapCtx.clearRect(0, 0, W, H);
   mapCtx.fillStyle = 'rgba(10,24,48,0.9)';
   mapCtx.beginPath(); mapCtx.arc(W / 2, H / 2, W / 2, 0, Math.PI * 2); mapCtx.fill();
-  const scale = 0.2, cx = W / 2, cy = H / 2;
-  const px = playerCar.position.x, pz = playerCar.position.z;
+  const scale = 0.18, cx = W / 2, cy = H / 2;
+  const px = player.onFoot ? player.footPos.x : playerCar.position.x;
+  const pz = player.onFoot ? player.footPos.z : playerCar.position.z;
   mapCtx.strokeStyle = 'rgba(100,160,220,0.5)';
   mapCtx.strokeRect(cx + (-160 - px) * scale, cy + (-160 - pz) * scale, 320 * scale, 320 * scale);
   mapCtx.fillStyle = 'rgba(80,140,80,0.75)';
   mapCtx.beginPath();
-  mapCtx.arc(cx + (WORLD.mountainX - px) * scale, cy + (WORLD.mountainZ - pz) * scale, 12, 0, Math.PI * 2);
+  mapCtx.arc(cx + (WORLD.mountainX - px) * scale, cy + (WORLD.mountainZ - pz) * scale, 10, 0, Math.PI * 2);
   mapCtx.fill();
-  // bridge
-  mapCtx.strokeStyle = 'rgba(220,220,240,0.9)';
-  mapCtx.lineWidth = 2;
+  // airport
+  mapCtx.fillStyle = 'rgba(200,220,255,0.85)';
+  mapCtx.fillRect(cx + (AIRPORT.x - px) * scale - 4, cy + (AIRPORT.z - pz) * scale - 2, 8, 4);
+  // gas
+  mapCtx.fillStyle = '#ff4466';
   mapCtx.beginPath();
-  mapCtx.moveTo(cx + (bridgeInfo.deckX - px) * scale, cy + (WORLD.mountainZ - 90 - pz) * scale);
-  mapCtx.lineTo(cx + (bridgeInfo.deckX - px) * scale, cy + (WORLD.mountainZ + 90 - pz) * scale);
-  mapCtx.stroke();
-  // cave
-  mapCtx.fillStyle = 'rgba(180,60,200,0.85)';
+  mapCtx.arc(cx + (GAS.x - px) * scale, cy + (GAS.z - pz) * scale, 3, 0, Math.PI * 2);
+  mapCtx.fill();
+  // monster cave
+  mapCtx.fillStyle = '#aa22ff';
   mapCtx.beginPath();
-  mapCtx.arc(cx + (WORLD.mountainX - 70 - px) * scale, cy + (WORLD.mountainZ + 10 - pz) * scale, 3, 0, Math.PI * 2);
+  mapCtx.arc(cx + (monster.zone.x - px) * scale, cy + (monster.zone.z - pz) * scale, 4, 0, Math.PI * 2);
   mapCtx.fill();
   for (const ai of aiCars) {
     mapCtx.fillStyle = ai.flying ? '#ffd36a' : '#7ad7ff';
@@ -1529,13 +2065,13 @@ function updateHUD() {
   }
   for (const a of animals) {
     if (a.flying) continue;
-    mapCtx.fillStyle = '#90ee90';
+    mapCtx.fillStyle = a.kind === 'fox' ? '#ff8844' : '#90ee90';
     mapCtx.fillRect(cx + (a.mesh.position.x - px) * scale - 1, cy + (a.mesh.position.z - pz) * scale - 1, 2, 2);
   }
   mapCtx.save();
   mapCtx.translate(cx, cy);
-  mapCtx.rotate(-player.yaw);
-  mapCtx.fillStyle = '#ff4466';
+  mapCtx.rotate(-(player.onFoot ? player.footYaw : player.yaw));
+  mapCtx.fillStyle = player.onFoot ? '#a0ffc0' : '#ff4466';
   mapCtx.beginPath(); mapCtx.moveTo(0, -6); mapCtx.lineTo(4, 5); mapCtx.lineTo(-4, 5); mapCtx.closePath(); mapCtx.fill();
   mapCtx.restore();
 }
@@ -1549,6 +2085,8 @@ function frame(now) {
     updatePlayer(dt);
     updateAI(dt);
     updateAnimals(dt);
+    updatePedestrians(dt);
+    updateMonster(dt);
     updateCamera(dt);
     updateHUD();
     updateSounds(dt);
@@ -1558,6 +2096,8 @@ function frame(now) {
     camera.lookAt(WORLD.mountainX, 40, WORLD.mountainZ);
     updateAI(dt * 0.5);
     updateAnimals(dt * 0.5);
+    updatePedestrians(dt * 0.5);
+    updateMonster(dt * 0.5);
   }
 
   renderer.render(scene, camera);
