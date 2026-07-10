@@ -12,7 +12,17 @@
 
 **Live game:** [https://luvbuniz.github.io/skywheels/](https://luvbuniz.github.io/skywheels/)
 
-Open in Chrome, Edge, or Firefox and hit **START DRIVING**.
+### 📱 Tablet install (offline + local save)
+
+1. Open the live link **once while online** (hotspot is fine) so the tablet downloads the game  
+2. **iPad (Safari):** Share → **Add to Home Screen**  
+3. **Android (Chrome):** Menu ⋮ → **Add to Home screen** / **Install app**  
+4. Open from the **SkyWheels** home-screen icon anytime  
+
+After that first load, the game can run **offline** (no internet needed).
+
+**Local save:** Progress is saved on **each tablet separately** (car position, fuel, gas cans, walking).  
+Kids do not share or overwrite each other’s saves.
 
 ---
 
