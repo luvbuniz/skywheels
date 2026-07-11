@@ -60,6 +60,23 @@ Deer, sheep, cows, dogs, **foxes**, lots of **birds**, bats, and **people walkin
 
 ## Controls
 
+### 📱 Touch (tablet / phone)
+
+Touch controls switch on automatically on touch devices (and on the first touch anywhere):
+
+| Control | Action |
+|---------|--------|
+| **Left side of screen** | A big circle appears under your finger — push **up to GO**, sideways to steer, down to brake/reverse |
+| **Drag anywhere else** | Look around (snaps back in the car) |
+| **⬆️ FLY / ⬇️ DOWN** | Hold to fly up / come down |
+| **🛑 STOP** | Hold to stop the car |
+| **🚶 WALK** | Get out of / back into the car |
+| **⛽ USE** | Doors, gas pump, buy/use gas can |
+
+While walking, a **glowing blue arrow** marks your parked car so you can always find your way back.
+
+### ⌨️ Keyboard
+
 Always shown on the in-game control sign (right side):
 
 | Key | Action |

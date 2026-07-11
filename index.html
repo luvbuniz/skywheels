@@ -173,52 +173,61 @@
     #touchPad { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 15; }
     body.touch #touchPad { display: block; }
     body.touch #controlSign { display: none !important; }
-    body.touch #mirror { width: min(140px, 22vw); height: min(78px, 12vw); top: 10px; right: 10px; }
-    body.touch .hint { top: 10px; font-size: 0.72rem; max-width: 70vw; }
-    body.touch .speedo { left: 10px; bottom: 10px; transform: scale(0.9); transform-origin: bottom left; }
-    body.touch #minimap { bottom: 10px; width: 90px; height: 90px; }
-    #lookDragLayer {
-      display: none; position: absolute; inset: 0; pointer-events: auto; touch-action: none; z-index: 1;
+    body.touch .title-chip { display: none; }
+    body.touch #mirror { width: min(150px, 24vw); height: min(82px, 13vw); top: 8px; right: 8px; }
+    body.touch .hint { top: 8px; font-size: 0.72rem; max-width: 44vw; }
+    body.touch .speedo {
+      left: 8px; top: 8px; bottom: auto; padding: 8px 12px; min-width: 122px;
+      transform: scale(0.92); transform-origin: top left;
     }
-    body.touch #lookDragLayer { display: block; }
-    .touch-zone {
-      position: absolute; pointer-events: auto; touch-action: none; z-index: 16;
-      border-radius: 50%; background: rgba(8,16,32,0.5);
-      border: 3px solid rgba(120,190,255,0.45); box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    body.touch #minimap { bottom: 12px; width: 96px; height: 96px; }
+
+    /* Drag anywhere (outside the stick) to look around */
+    #lookArea { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
+
+    /* Floating drive stick: the circle jumps under your finger anywhere in the lower-left */
+    #stickArea {
+      position: absolute; left: 0; bottom: 0; width: 46vw; height: 62vh;
+      pointer-events: auto; touch-action: none;
     }
-    #moveZone { left: 16px; bottom: 88px; width: min(38vw, 150px); height: min(38vw, 150px); }
-    #lookZone { right: 16px; bottom: 88px; width: min(38vw, 150px); height: min(38vw, 150px); }
-    .stick-label {
-      position: absolute; top: 10px; left: 0; right: 0; text-align: center;
-      font-size: 0.78rem; font-weight: 900; color: #b8e0ff; letter-spacing: 0.06em;
+    #stickBase {
+      position: absolute; width: 156px; height: 156px; border-radius: 50%;
+      background: rgba(8, 16, 32, 0.42);
+      border: 3px solid rgba(120, 190, 255, 0.55);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35), inset 0 0 30px rgba(80,150,255,0.12);
     }
-    .stick-base {
-      position: absolute; left: 50%; top: 54%; width: 72%; height: 72%;
-      transform: translate(-50%, -50%); border-radius: 50%;
-      background: rgba(100,180,255,0.12); border: 2px solid rgba(120,190,255,0.3);
+    #stickBase.settle { transition: left 0.28s ease, top 0.28s ease; }
+    #stickBase .dir {
+      position: absolute; left: 0; right: 0; text-align: center;
+      font-size: 0.62rem; font-weight: 900; letter-spacing: 0.1em; color: rgba(190,225,255,0.9);
     }
-    .stick-knob {
-      position: absolute; left: 50%; top: 54%; width: 38%; height: 38%;
-      transform: translate(-50%, -50%); border-radius: 50%;
+    #stickBase .dir.go { top: 9px; }
+    #stickBase .dir.back { bottom: 9px; }
+    #stickKnob {
+      position: absolute; left: 50%; top: 50%; width: 68px; height: 68px;
+      margin: -34px 0 0 -34px; border-radius: 50%;
       background: linear-gradient(145deg, #6ee7ff, #4a9cff);
-      border: 3px solid rgba(255,255,255,0.45); box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      border: 3px solid rgba(255,255,255,0.5); box-shadow: 0 4px 14px rgba(0,0,0,0.4);
     }
-    #touchActions, #touchActionsLeft {
-      position: absolute; bottom: 12px; display: none; flex-wrap: wrap; gap: 10px;
-      pointer-events: auto; z-index: 16; max-width: 48vw;
-    }
-    body.touch #touchActions, body.touch #touchActionsLeft { display: flex; }
-    #touchActions { right: 12px; justify-content: flex-end; }
-    #touchActionsLeft { left: 12px; }
+
     .tact {
-      width: 70px; height: 70px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.45);
+      pointer-events: auto; border: 3px solid rgba(255,255,255,0.45); border-radius: 50%;
       background: linear-gradient(145deg, #3a8cff, #6ee7ff); color: #041018;
-      font-weight: 900; font-size: 0.68rem; font-family: inherit; line-height: 1.15;
+      font-weight: 900; font-size: 0.72rem; font-family: inherit; line-height: 1.15;
       box-shadow: 0 6px 16px rgba(0,0,0,0.35); -webkit-tap-highlight-color: transparent;
+      touch-action: none; user-select: none; -webkit-user-select: none;
     }
     .tact.alt { background: linear-gradient(145deg, #ffd36a, #ff9a4a); color: #2a1800; }
     .tact.fly { background: linear-gradient(145deg, #a78bfa, #60a5fa); color: #fff; }
     .tact:active { transform: scale(0.94); }
+    #flyCol {
+      position: absolute; right: 12px; bottom: 12px;
+      display: flex; flex-direction: column; gap: 12px; z-index: 17; pointer-events: none;
+    }
+    #flyCol .tact { width: 84px; height: 84px; font-size: 0.8rem; }
+    #touchWalk, #touchUse { position: absolute; bottom: 14px; width: 76px; height: 76px; z-index: 17; }
+    #touchWalk { left: calc(50% - 140px); }
+    #touchUse { left: calc(50% + 64px); }
   </style>
 </head>
 <body>
@@ -240,12 +249,13 @@
         </ul>
       </div>
       <div class="controls" id="tabletControls" style="display:none">
-        <h3>📱 TABLET CONTROLS</h3>
+        <h3>📱 TOUCH CONTROLS</h3>
         <ul>
-          <li><b>Left circle</b> — move / drive</li>
-          <li><b>Right circle</b> — look around</li>
-          <li><b>Drag</b> middle of screen — also look</li>
-          <li>Buttons: Walk, Gas, Fly up/down, Place actions</li>
+          <li>🕹 <b>Touch the left side</b> — a circle appears under your finger. Push <b>up to GO</b>, sideways to turn</li>
+          <li>👆 <b>Drag anywhere else</b> — look around</li>
+          <li>⬆️ FLY · ⬇️ DOWN · 🛑 STOP — big buttons on the right</li>
+          <li>🚶 get out / in the car · ⛽ doors, gas &amp; shopping</li>
+          <li style="color:#8eb8e0">⌨️ A keyboard also works (WASD + Space)</li>
         </ul>
       </div>
       <button class="primary" id="startBtn" type="button">START DRIVING ✦</button>
@@ -298,26 +308,20 @@
     <div id="minimap"><canvas id="mapCanvas" width="112" height="112"></canvas></div>
 
     <div id="touchPad">
-      <div id="lookDragLayer"></div>
-      <div class="touch-zone" id="moveZone">
-        <div class="stick-label">MOVE</div>
-        <div class="stick-base"></div>
-        <div class="stick-knob" id="moveKnob"></div>
+      <div id="lookArea"></div>
+      <div id="stickArea">
+        <div id="stickBase">
+          <div class="dir go">GO ▲</div>
+          <div class="dir back">▼ BACK</div>
+          <div id="stickKnob"></div>
+        </div>
       </div>
-      <div class="touch-zone" id="lookZone">
-        <div class="stick-label">LOOK</div>
-        <div class="stick-base"></div>
-        <div class="stick-knob" id="lookKnob"></div>
-      </div>
-      <div id="touchActionsLeft">
-        <button type="button" class="tact" id="touchWalk">🚶<br>WALK</button>
-        <button type="button" class="tact alt" id="touchUse">⛽<br>USE</button>
-        <button type="button" class="tact fly" id="touchCenter">👀<br>CENTER</button>
-      </div>
-      <div id="touchActions">
+      <button type="button" class="tact" id="touchWalk">🚶<br>WALK</button>
+      <button type="button" class="tact alt" id="touchUse">⛽<br>USE</button>
+      <div id="flyCol">
         <button type="button" class="tact fly" id="touchFlyUp">⬆️<br>FLY</button>
-        <button type="button" class="tact alt" id="touchFlyDown">⬇️<br>DOWN</button>
-        <button type="button" class="tact" id="touchBrake">🛑<br>STOP</button>
+        <button type="button" class="tact fly" id="touchFlyDown">⬇️<br>DOWN</button>
+        <button type="button" class="tact alt" id="touchBrake">🛑<br>STOP</button>
       </div>
     </div>
   </div>
@@ -343,16 +347,23 @@ const mirrorCanvas = document.getElementById('mirrorCanvas');
 const mapCanvas = document.getElementById('mapCanvas');
 const mapCtx = mapCanvas.getContext('2d');
 
+// Touch-first devices (tablets/phones) get lighter render settings so the
+// game stays at full speed — game logic scales with real time either way.
+const PREFERS_TOUCH = matchMedia('(pointer: coarse)').matches;
+const LOW_POWER = PREFERS_TOUCH;
+
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+let pixelScale = Math.min(window.devicePixelRatio, LOW_POWER ? 1.5 : 2);
+renderer.setPixelRatio(pixelScale);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = LOW_POWER ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = !LOW_POWER; // low power: shadows refresh every 2nd frame
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-const mirrorRenderer = new THREE.WebGLRenderer({ canvas: mirrorCanvas, antialias: true });
+const mirrorRenderer = new THREE.WebGLRenderer({ canvas: mirrorCanvas, antialias: false });
 mirrorRenderer.setPixelRatio(1);
 mirrorRenderer.setSize(200, 108, false);
 mirrorRenderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -435,22 +446,26 @@ const scene = new THREE.Scene();
 scene.background = makeSkyTexture();
 scene.fog = new THREE.FogExp2(0x9bbfe0, 0.00115);
 
-const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.4, 2500);
+const camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.4, 1600);
 const rearCamera = new THREE.PerspectiveCamera(55, 200 / 108, 0.4, 800);
 
-// Lights
-scene.add(new THREE.HemisphereLight(0xbddfff, 0x3a4a30, 0.85));
+// Lights — kept to a handful: dozens of per-object point lights made every
+// material shader hugely expensive and crawled on tablet GPUs. Small glows
+// are now emissive materials/sprites instead.
+scene.add(new THREE.HemisphereLight(0xbddfff, 0x3a4a30, 0.95));
 const sun = new THREE.DirectionalLight(0xfff2d6, 1.3);
 sun.position.set(180, 320, 80);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+const shadowSize = LOW_POWER ? 1024 : 2048;
+const shadowSpan = LOW_POWER ? 240 : 350;
+sun.shadow.mapSize.set(shadowSize, shadowSize);
 sun.shadow.camera.near = 10;
-sun.shadow.camera.far = 900;
-Object.assign(sun.shadow.camera, { left: -350, right: 350, top: 350, bottom: -350 });
+sun.shadow.camera.far = LOW_POWER ? 750 : 900;
+Object.assign(sun.shadow.camera, { left: -shadowSpan, right: shadowSpan, top: shadowSpan, bottom: -shadowSpan });
 sun.shadow.bias = -0.00025;
 scene.add(sun);
 scene.add(new THREE.DirectionalLight(0x88aaff, 0.25).translateX(-120).translateY(80).translateZ(-100));
-scene.add(new THREE.AmbientLight(0x6688aa, 0.28));
+scene.add(new THREE.AmbientLight(0x6688aa, 0.32));
 
 const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
   map: makeGlowTexture(),
@@ -577,7 +592,7 @@ function makeBuilding(w, h, d, color) {
   const body = addShadow(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), makeMat(color, 0.55, 0.35)));
   body.position.y = h / 2; g.add(body);
   const glass = makeMat(0x88ccff, 0.9, 0.12, 0x224466, 0.15);
-  const floors = Math.max(2, Math.floor(h / 8));
+  const floors = Math.max(2, Math.min(5, Math.floor(h / 8)));
   for (let i = 1; i < floors; i++) {
     const band = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, 0.9, d + 0.15), glass);
     band.position.y = (i / floors) * h; g.add(band);
@@ -602,10 +617,8 @@ function makeBuilding(w, h, d, color) {
   right.position.x = w * 0.505; right.rotation.y = Math.PI / 2; g.add(right);
 
   const neon = neonColors[(Math.random() * neonColors.length) | 0];
-  const top = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4, 1.2, d * 0.4), makeMat(0x222833, 0.7, 0.3, neon, 0.8));
+  const top = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4, 1.2, d * 0.4), makeMat(0x222833, 0.7, 0.3, neon, 1.7));
   top.position.y = h + 0.6; g.add(top);
-  const light = new THREE.PointLight(neon, 0.5, 38, 2);
-  light.position.y = h + 2; g.add(light);
   g.userData.halfW = w / 2; g.userData.halfD = d / 2; g.userData.h = h;
   return g;
 }
@@ -631,19 +644,17 @@ for (let ix = -3; ix <= 3; ix++) {
 // Plaza + fountain (fatal if smash)
 const plaza = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(22, 22, 0.4, 48), makeMat(0x4a5568, 0.4, 0.5)), false, true);
 plaza.position.y = 0.15; scene.add(plaza);
-const fountain = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(4, 5, 3, 24), makeMat(0x88ccee, 0.7, 0.2, 0x44aaff, 0.3)));
+const fountain = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(4, 5, 3, 24), makeMat(0x88ccee, 0.7, 0.2, 0x44aaff, 0.55)));
 fountain.position.y = 1.5; scene.add(fountain);
 addBoxCollider(0, 2, 0, 5, 2.5, 5, true, 'the fountain');
-scene.add(new THREE.PointLight(0x66ccff, 1.2, 50).translateY(6));
 
 // Lamps
 function makeLamp() {
   const g = new THREE.Group();
   const pole = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 8, 8), makeMat(0x333844, 0.7, 0.4)));
   pole.position.y = 4; g.add(pole);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 12, 12), makeMat(0xffeecc, 0.2, 0.3, 0xffeeaa, 0.9));
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 12, 12), makeMat(0xffeecc, 0.2, 0.3, 0xffeeaa, 1.3));
   head.position.y = 8.2; g.add(head);
-  const pl = new THREE.PointLight(0xffe8b0, 0.65, 26, 2); pl.position.y = 8; g.add(pl);
   return g;
 }
 for (const x of [-7, 7]) for (let z = -140; z <= 140; z += 40) { const L = makeLamp(); L.position.set(x, 0, z); scene.add(L); }
@@ -844,17 +855,18 @@ function makeCave() {
     const r = 3 + Math.random() * 8;
     const crystal = addShadow(new THREE.Mesh(
       new THREE.OctahedronGeometry(1.2 + Math.random() * 0.8, 0),
-      makeMat(0xaa22ff, 0.5, 0.25, 0xff44aa, 0.9)
+      makeMat(0xaa22ff, 0.5, 0.25, 0xff44aa, 1.4)
     ));
     const sx = cx + Math.cos(ang) * r;
     const sz = cz + Math.sin(ang) * r;
     crystal.position.set(sx, 1.5 + Math.random(), sz);
     crystal.rotation.set(Math.random(), Math.random(), Math.random());
     g.add(crystal);
-    const pl = new THREE.PointLight(0xff44aa, 0.7, 12, 2);
-    pl.position.copy(crystal.position); g.add(pl);
     caveHazards.push({ x: WORLD.mountainX + sx, y: 1.5, z: WORLD.mountainZ + sz, r: 1.6, label: 'a danger crystal' });
   }
+  // one shared glow for the whole cave (instead of a light per crystal)
+  const caveGlow = new THREE.PointLight(0xff44aa, 1.2, 48, 2);
+  caveGlow.position.set(cx, 6, cz); g.add(caveGlow);
 
   // Lava puddles
   for (let i = 0; i < 4; i++) {
@@ -868,10 +880,6 @@ function makeCave() {
     lava.position.set(sx, 0.4, sz); g.add(lava);
     caveHazards.push({ x: WORLD.mountainX + sx, y: 0.5, z: WORLD.mountainZ + sz, r: 2.4, label: 'lava' });
   }
-
-  // Bats hanging / flying later as animals
-  const batLight = new THREE.PointLight(0xff6644, 0.4, 30, 2);
-  batLight.position.set(cx, 6, cz); g.add(batLight);
 
   // "CAVE" label rock
   const plaque = new THREE.Mesh(new THREE.BoxGeometry(6, 1.5, 0.4), makeMat(0x2a2a28, 0.2, 0.8, 0xff5533, 0.4));
@@ -910,14 +918,14 @@ for (let i = 0; i < 70; i++) {
 function makeCloud() {
   const g = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, transparent: true, opacity: 0.9 });
-  for (let i = 0; i < 5; i++) {
-    const c = new THREE.Mesh(new THREE.SphereGeometry(6 + Math.random() * 7, 10, 10), mat);
+  for (let i = 0; i < 4; i++) {
+    const c = new THREE.Mesh(new THREE.SphereGeometry(6 + Math.random() * 7, 8, 8), mat);
     c.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 12);
     g.add(c);
   }
   return g;
 }
-for (let i = 0; i < 22; i++) {
+for (let i = 0; i < 16; i++) {
   const cloud = makeCloud();
   cloud.position.set((Math.random() - 0.5) * 900, 70 + Math.random() * 70, (Math.random() - 0.5) * 900);
   cloud.scale.setScalar(1 + Math.random() * 1.6);
@@ -1140,6 +1148,7 @@ for (let i = 0; i < 28; i++) {
 }
 
 // ─── Fancy cars ──────────────────────────────────────────────
+const headlightGlowTexture = makeGlowTexture();
 const CAR_PALETTES = [
   { body: 0xc41e3a, accent: 0x1a1a1a, glow: 0xff4466 },
   { body: 0x0a3d8f, accent: 0xc0c8d8, glow: 0x4488ff },
@@ -1174,17 +1183,24 @@ function createFancyCar(palette, isPlayer = false) {
   const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.48, 4.5), accentMat);
   stripe.position.y = 0.58; g.add(stripe);
 
+  const wheels = [];
   function wheel(x, z) {
     const wg = new THREE.Group();
-    const tire = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.32, 16), makeMat(0x1a1a1a, 0.3, 0.7)));
-    tire.rotation.z = Math.PI / 2; wg.add(tire);
-    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.34, 12), chrome);
-    rim.rotation.z = Math.PI / 2; wg.add(rim);
-    const glow = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.06, 8, 20), makeMat(p.glow, 0.4, 0.3, p.glow, 0.9));
+    const spin = new THREE.Group(); // rotates around the axle so wheels visibly roll
+    const tire = addShadow(new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.32, 14), makeMat(0x1a1a1a, 0.3, 0.7)));
+    tire.rotation.z = Math.PI / 2; spin.add(tire);
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.34, 10), chrome);
+    rim.rotation.z = Math.PI / 2; spin.add(rim);
+    const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.5, 0.1), makeMat(0x222630, 0.6, 0.4));
+    spoke.position.x = 0; spin.add(spoke);
+    wg.add(spin);
+    wheels.push(spin);
+    const glow = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.06, 6, 18), makeMat(p.glow, 0.4, 0.3, p.glow, 0.9));
     glow.rotation.x = Math.PI / 2; glow.position.y = -0.15; wg.add(glow);
     wg.position.set(x, 0.42, z); return wg;
   }
   g.add(wheel(-0.95, 1.35), wheel(0.95, 1.35), wheel(-0.95, -1.35), wheel(0.95, -1.35));
+  g.userData.wheels = wheels;
 
   const hlMat = makeMat(0xffffee, 0.2, 0.2, 0xffffcc, 1.2);
   const hlL = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.18, 0.12), hlMat);
@@ -1198,14 +1214,14 @@ function createFancyCar(palette, isPlayer = false) {
   under.position.y = 0.12; g.add(under);
 
   if (isPlayer) {
-    const pLight = new THREE.PointLight(p.glow, 0.8, 18, 2);
-    pLight.position.set(0, 0.5, 0); g.add(pLight);
-    const spotL = new THREE.SpotLight(0xffffee, 2.2, 55, 0.35, 0.4, 1);
-    spotL.position.set(-0.6, 0.7, 2.3); spotL.target.position.set(-0.6, 0.2, 20);
-    g.add(spotL, spotL.target);
-    const spotR = new THREE.SpotLight(0xffffee, 2.2, 55, 0.35, 0.4, 1);
-    spotR.position.set(0.6, 0.7, 2.3); spotR.target.position.set(0.6, 0.2, 20);
-    g.add(spotR, spotR.target);
+    // headlight glow sprites — the look of lights without real-light shader cost
+    for (const sx of [-0.7, 0.7]) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: headlightGlowTexture, color: 0xfff6cc, transparent: true,
+        depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.85,
+      }));
+      s.position.set(sx, 0.62, 2.45); s.scale.set(1.5, 1.5, 1); g.add(s);
+    }
   }
   g.userData.halfLen = 2.35; g.userData.halfWidth = 1.1;
   return g;
@@ -1230,7 +1246,8 @@ const player = {
   gasCans: 0,
   inside: null, // enterable place id when indoors
   footPos: new THREE.Vector3(0, 0, 40),
-  footYaw: 0,
+  footYaw: 0,  // direction the character faces / walks
+  camYaw: 0,   // direction the camera looks while on foot
 };
 
 // ─── Local save (per tablet / browser — stays on this device) ─
@@ -1304,6 +1321,8 @@ function loadGame() {
       player.footPos.set(data.car.x, 0, data.car.z);
       player.footYaw = player.yaw;
     }
+    player.camYaw = player.footYaw;
+    look.yaw = 0;
 
     player.onFoot = !!data.onFoot;
     playerPerson.visible = player.onFoot;
@@ -1332,6 +1351,25 @@ function clearSave() {
 const playerPerson = makePerson(0xff4466);
 playerPerson.visible = false;
 scene.add(playerPerson);
+
+// Glowing beacon over the parked car — shown while walking so you can
+// always find your way back to it
+const carBeacon = new THREE.Group();
+{
+  const pillar = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.5, 1.7, 26, 10, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0x66e0ff, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide })
+  );
+  pillar.position.y = 14;
+  carBeacon.add(pillar);
+  const arrow = new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 4), new THREE.MeshBasicMaterial({ color: 0x7ad7ff }));
+  arrow.rotation.x = Math.PI; // point down at the car
+  arrow.position.y = 5.6;
+  carBeacon.add(arrow);
+  carBeacon.userData.arrow = arrow;
+  carBeacon.visible = false;
+  scene.add(carBeacon);
+}
 
 // ─── Enterable places (doors only) ───────────────────────────
 const enterables = [];
@@ -1369,16 +1407,13 @@ const GAS = { x: -200, z: 40 };
     pump.position.set(px, 1.1, GAS.z); scene.add(pump);
     const hose = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), makeMat(0x222222, 0.2, 0.7));
     hose.position.set(px + 0.5, 1.4, GAS.z + 0.4); scene.add(hose);
-    const light = new THREE.PointLight(0xffaa44, 0.5, 12, 2);
-    light.position.set(px, 4.8, GAS.z); scene.add(light);
+    const lampGlow = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.2, 0.9), makeMat(0xffaa44, 0.2, 0.4, 0xffaa44, 1.2));
+    lampGlow.position.set(px, 4.9, GAS.z); scene.add(lampGlow);
   }
   // shop building
   const shop = addShadow(new THREE.Mesh(new THREE.BoxGeometry(14, 6, 12), makeMat(0xf0f4f8, 0.35, 0.5)));
   shop.position.set(GAS.x, 3, GAS.z - 16); scene.add(shop);
   addBoxCollider(GAS.x, 3, GAS.z - 16, 7.2, 3.2, 6.2, true, 'the gas shop wall');
-  // shop interior lights
-  const shopLight = new THREE.PointLight(0xffeecc, 0.8, 20, 2);
-  shopLight.position.set(GAS.x, 5, GAS.z - 16); scene.add(shopLight);
   // gas can display (visual)
   for (let i = 0; i < 3; i++) {
     const can = addShadow(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.4), makeMat(0xff4400, 0.3, 0.5, 0xff2200, 0.15)));
@@ -1689,124 +1724,141 @@ function playChirp() {
 
 // ─── Input ───────────────────────────────────────────────────
 const keys = Object.create(null);
-function isTabletDevice() {
-  const userAgent = navigator.userAgent || '';
-  const touchPoints = navigator.maxTouchPoints || 0;
-  const hasCoarsePointer = matchMedia('(pointer: coarse)').matches;
-  const hasHover = matchMedia('(any-hover: hover)').matches;
-  const shortScreenSide = Math.min(screen.width, screen.height);
-  const isIPad = /iPad/.test(userAgent) ||
-    (navigator.platform === 'MacIntel' && touchPoints > 1);
-  const isAndroidTablet = /Android/.test(userAgent) && !/Mobile/.test(userAgent);
-  const isTouchOnlyLargeScreen = touchPoints > 1 && hasCoarsePointer &&
-    !hasHover && shortScreenSide >= 600;
 
-  return isIPad || isAndroidTablet || isTouchOnlyLargeScreen;
-}
-
-const isTablet = isTabletDevice();
-if (isTablet) {
+// Touch mode: any touch-first device gets the big circle controls right away,
+// and the first real touch on ANY device flips it on too — so no tablet can
+// ever be stranded with keyboard-only controls again.
+let touchMode = false;
+function enableTouchMode() {
+  if (touchMode) return;
+  touchMode = true;
   document.body.classList.add('touch');
   const dc = document.getElementById('desktopControls');
   const tc = document.getElementById('tabletControls');
   if (dc) dc.style.display = 'none';
   if (tc) tc.style.display = 'block';
 }
+if (PREFERS_TOUCH || (navigator.maxTouchPoints || 0) > 0 && !matchMedia('(any-hover: hover)').matches) {
+  enableTouchMode();
+}
+window.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'touch') enableTouchMode();
+}, true);
 
-const touchMove = { x: 0, z: 0 };
-const touchLook = { x: 0, y: 0 };
+// Analog drive stick (-1..1 per axis) + camera-look state
+const touchDrive = { x: 0, y: 0, active: false };
+let touchStop = false;
+const look = { yaw: 0, active: false };
 
-function bindStick(zoneId, knobId, onMove, onEnd) {
-  const zone = document.getElementById(zoneId);
-  const knob = document.getElementById(knobId);
-  if (!zone || !knob) return;
-  let active = null;
-  function center() {
-    const r = zone.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height * 0.54, max: Math.min(r.width, r.height) * 0.32 };
+// Floating joystick: the circle jumps under the finger anywhere in the
+// lower-left of the screen, so small hands never miss it. Fully analog.
+(function bindDriveStick() {
+  const area = document.getElementById('stickArea');
+  const base = document.getElementById('stickBase');
+  const knob = document.getElementById('stickKnob');
+  if (!area || !base || !knob) return;
+  const BASE = 156, TRAVEL = 52, DEAD = 0.08;
+  let pid = null, baseCx = 0, baseCy = 0;
+
+  function placeBase(cx, cy) {
+    base.style.left = (cx - BASE / 2) + 'px';
+    base.style.top = (cy - BASE / 2) + 'px';
   }
-  function handle(clientX, clientY) {
-    const c = center();
-    let dx = clientX - c.x, dy = clientY - c.y;
-    const len = Math.hypot(dx, dy) || 1;
-    if (len > c.max) { dx = (dx / len) * c.max; dy = (dy / len) * c.max; }
-    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-    const nx = Math.abs(dx / c.max) < 0.12 ? 0 : dx / c.max;
-    const ny = Math.abs(dy / c.max) < 0.12 ? 0 : dy / c.max;
-    onMove(nx, ny);
+  function rest() {
+    const r = area.getBoundingClientRect();
+    base.classList.add('settle');
+    placeBase(Math.min(120, Math.max(90, r.width - 90)), r.height - 104);
   }
-  function end(e) {
-    if (active !== e.pointerId) return;
-    active = null;
-    knob.style.transform = 'translate(-50%, -50%)';
-    onEnd();
+  function apply(clientX, clientY) {
+    const r = area.getBoundingClientRect();
+    let dx = clientX - (r.left + baseCx);
+    let dy = clientY - (r.top + baseCy);
+    const len = Math.hypot(dx, dy);
+    if (len > TRAVEL) { dx *= TRAVEL / len; dy *= TRAVEL / len; }
+    knob.style.transform = `translate(${dx}px, ${dy}px)`;
+    const soft = (v) => {
+      const a = Math.abs(v) / TRAVEL;
+      return a < DEAD ? 0 : Math.sign(v) * Math.min(1, (a - DEAD) / (1 - DEAD));
+    };
+    touchDrive.x = soft(dx);
+    touchDrive.y = soft(dy);
   }
-  zone.addEventListener('pointerdown', e => {
-    active = e.pointerId;
-    try { zone.setPointerCapture(e.pointerId); } catch {}
-    handle(e.clientX, e.clientY);
-    e.preventDefault(); e.stopPropagation();
-  });
-  zone.addEventListener('pointermove', e => {
-    if (active !== e.pointerId) return;
-    handle(e.clientX, e.clientY);
+  area.addEventListener('pointerdown', (e) => {
+    if (pid !== null) return;
+    pid = e.pointerId;
+    try { area.setPointerCapture(pid); } catch {}
+    const r = area.getBoundingClientRect();
+    baseCx = Math.min(Math.max(e.clientX - r.left, 84), r.width - 84);
+    baseCy = Math.min(Math.max(e.clientY - r.top, 84), r.height - 84);
+    base.classList.remove('settle');
+    placeBase(baseCx, baseCy);
+    touchDrive.active = true;
+    apply(e.clientX, e.clientY);
     e.preventDefault();
   });
-  zone.addEventListener('pointerup', end);
-  zone.addEventListener('pointercancel', end);
-}
-bindStick('moveZone', 'moveKnob', (x, y) => { touchMove.x = x; touchMove.z = y; }, () => { touchMove.x = 0; touchMove.z = 0; });
-bindStick('lookZone', 'lookKnob', (x, y) => { touchLook.x = x; touchLook.y = y; }, () => { touchLook.x = 0; touchLook.y = 0; });
+  area.addEventListener('pointermove', (e) => {
+    if (pid !== e.pointerId) return;
+    apply(e.clientX, e.clientY);
+    e.preventDefault();
+  });
+  function end(e) {
+    if (pid !== e.pointerId) return;
+    pid = null;
+    touchDrive.x = 0; touchDrive.y = 0; touchDrive.active = false;
+    knob.style.transform = 'translate(0px, 0px)';
+    rest();
+  }
+  area.addEventListener('pointerup', end);
+  area.addEventListener('pointercancel', end);
+  window.addEventListener('resize', () => { if (pid === null) rest(); });
+  rest();
+})();
 
+// Drag anywhere else on the screen to look around (auto-recenters in the car)
 (function bindLookDrag() {
-  const layer = document.getElementById('lookDragLayer');
+  const layer = document.getElementById('lookArea');
   if (!layer) return;
   let pid = null, lx = 0, ly = 0;
-  layer.addEventListener('pointerdown', e => {
+  layer.addEventListener('pointerdown', (e) => {
     pid = e.pointerId; lx = e.clientX; ly = e.clientY;
+    look.active = true;
     try { layer.setPointerCapture(e.pointerId); } catch {}
     e.preventDefault();
   });
-  layer.addEventListener('pointermove', e => {
+  layer.addEventListener('pointermove', (e) => {
     if (pid !== e.pointerId) return;
     const dx = e.clientX - lx, dy = e.clientY - ly;
     lx = e.clientX; ly = e.clientY;
     if (player.onFoot) {
-      player.footYaw -= dx * 0.0055;
+      player.camYaw -= dx * 0.006;
     } else {
-      player.yaw -= dx * 0.005;
-      // slight pitch feel via look when flying only
+      look.yaw = THREE.MathUtils.clamp(look.yaw - dx * 0.006, -2.9, 2.9);
       if (player.flying) player.vy += -dy * 0.02;
     }
     e.preventDefault();
   });
-  layer.addEventListener('pointerup', e => { if (pid === e.pointerId) pid = null; });
-  layer.addEventListener('pointercancel', e => { if (pid === e.pointerId) pid = null; });
+  function end(e) { if (pid === e.pointerId) { pid = null; look.active = false; } }
+  layer.addEventListener('pointerup', end);
+  layer.addEventListener('pointercancel', end);
 })();
 
-function bindHold(id, code) {
+function bindHold(id, onChange) {
   const el = document.getElementById(id);
   if (!el) return;
-  const down = e => { keys[code] = true; e.preventDefault(); e.stopPropagation(); };
-  const up = e => { keys[code] = false; e.preventDefault(); };
+  const down = (e) => { onChange(true); e.preventDefault(); e.stopPropagation(); };
+  const up = (e) => { onChange(false); e.preventDefault(); };
   el.addEventListener('pointerdown', down);
   el.addEventListener('pointerup', up);
   el.addEventListener('pointerleave', up);
   el.addEventListener('pointercancel', up);
 }
-bindHold('touchFlyUp', 'Space');
-bindHold('touchFlyDown', 'ShiftLeft');
-bindHold('touchBrake', 'KeyS');
+bindHold('touchFlyUp', (v) => { keys['Space'] = v; });
+bindHold('touchFlyDown', (v) => { keys['ShiftLeft'] = v; });
+bindHold('touchBrake', (v) => { touchStop = v; });
 document.getElementById('touchWalk')?.addEventListener('pointerdown', e => { tryExitEnterCar(); e.preventDefault(); e.stopPropagation(); });
 document.getElementById('touchUse')?.addEventListener('pointerdown', e => { tryInteract(); e.preventDefault(); e.stopPropagation(); });
-document.getElementById('touchCenter')?.addEventListener('pointerdown', e => {
-  if (player.onFoot) toastHint('👀 Looking ahead');
-  else { player.lookBack = false; toastHint('👀 Camera centered'); }
-  e.preventDefault(); e.stopPropagation();
-});
 
 window.addEventListener('keydown', (e) => {
-  if (isTablet) return; // tablet uses circles only
   keys[e.code] = true;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.code === 'KeyC' && !player.onFoot) player.lookBack = true;
@@ -1828,7 +1880,8 @@ function resetPlayer() {
   player.speed = 0; player.yaw = 0; player.vy = 0;
   player.flying = false; player.alive = true; player.invuln = 1.2;
   player.onFoot = false; player.fuel = 100; player.gasCans = 0; player.inside = null;
-  player.footPos.set(0, 0, 40); player.footYaw = 0;
+  player.footPos.set(0, 0, 40); player.footYaw = 0; player.camYaw = 0;
+  look.yaw = 0;
   playerCar.rotation.set(0, 0, 0);
   playerCar.visible = true;
   playerPerson.visible = false;
@@ -1843,18 +1896,21 @@ function toastHint(msg) {
 function tryExitEnterCar() {
   if (!player.alive) return;
   if (player.onFoot) {
-    // get in if near car
+    // get in if near car (generous radius for kids)
     const d = player.footPos.distanceTo(playerCar.position);
-    if (d < 5) {
+    if (d < 7) {
       player.onFoot = false;
       player.inside = null;
       playerPerson.visible = false;
       playerCar.visible = true;
       player.yaw = player.footYaw;
-      toastHint('Back in the car! Drive carefully ⛽');
+      look.yaw = 0;
+      toastHint(touchMode ? 'Back in the car! Push the circle UP to drive ⛽' : 'Back in the car! Drive carefully ⛽');
       saveGame(true);
     } else {
-      toastHint('Walk closer to your car to get in (F)');
+      toastHint(touchMode
+        ? '✨ Follow the glowing blue arrow to your car, then tap 🚶'
+        : '✨ Follow the glowing blue arrow to your car, then press F');
     }
   } else {
     // get out if slow enough
@@ -1870,9 +1926,12 @@ function tryExitEnterCar() {
       playerCar.position.z + Math.cos(player.yaw) * -3
     );
     player.footYaw = player.yaw;
+    player.camYaw = player.yaw;
     playerPerson.visible = true;
     playerCar.visible = true; // parked car stays visible
-    toastHint('Walking! F = get in car · E = open doors / use gas');
+    toastHint(touchMode
+      ? 'Walking! The ✨ blue arrow marks your car · 🚶 = get back in'
+      : 'Walking! The ✨ blue arrow marks your car · F = get in · E = doors/gas');
     saveGame(true);
   }
 }
@@ -2076,10 +2135,10 @@ document.getElementById('startBtn').addEventListener('click', () => {
   // Load this tablet's save if any
   const loaded = loadGame();
   player.invuln = 1.5;
-  if (isTablet) {
+  if (touchMode) {
     toastHint(loaded
-      ? '💾 Welcome back! Left circle MOVE · Right circle LOOK · 🚶 WALK · ⛽ USE'
-      : '📱 Left circle = drive · Right = look · 🚶 get out · ⛽ gas/doors');
+      ? '💾 Welcome back! 🕹 Push the circle UP to drive · ⬆️ FLY · 🛑 STOP'
+      : '🕹 Push the circle UP to drive! ⬆️ FLY · 🛑 STOP · 🚶 walk · ⛽ gas');
   } else if (loaded) {
     toastHint('💾 Welcome back! Loaded save from this tablet');
   } else {
@@ -2102,18 +2161,16 @@ if (hasSave()) {
   if (note) note.innerHTML = '💾 Found a save on <b>this tablet</b> — press Continue to keep going!';
 }
 
+function lerpAngle(a, b, t) {
+  let d = b - a;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return a + d * t;
+}
+
 function updatePlayer(dt) {
   if (!player.alive) return;
   if (player.invuln > 0) player.invuln -= dt;
-
-  // Touch look stick (car or foot)
-  if (isTablet && (touchLook.x || touchLook.y)) {
-    if (player.onFoot) {
-      player.footYaw -= touchLook.x * 2.4 * dt;
-    } else {
-      player.yaw -= touchLook.x * 2.2 * dt;
-    }
-  }
 
   // ── On foot ──
   if (player.onFoot) {
@@ -2121,22 +2178,25 @@ function updatePlayer(dt) {
     const right = keys['KeyD'] || keys['ArrowRight'];
     const fwd = keys['KeyW'] || keys['ArrowUp'];
     const back = keys['KeyS'] || keys['ArrowDown'];
-    if (left) player.footYaw += 2.2 * dt;
-    if (right) player.footYaw -= 2.2 * dt;
-    const sp = 7;
+    if (left) player.camYaw += 2.2 * dt;
+    if (right) player.camYaw -= 2.2 * dt;
     const prev = player.footPos.clone();
-    let fx = 0, sx = 0;
-    if (fwd) fx += 1;
-    if (back) fx -= 1;
-    if (isTablet && (touchMove.x || touchMove.z)) {
-      fx += -touchMove.z; // stick up = forward
-      sx += touchMove.x;
-    }
-    const len = Math.hypot(fx, sx);
-    if (len > 0.01) {
-      fx /= len; sx /= len;
-      player.footPos.x += (Math.sin(player.footYaw) * fx + Math.cos(player.footYaw) * sx) * sp * dt;
-      player.footPos.z += (Math.cos(player.footYaw) * fx - Math.sin(player.footYaw) * sx) * sp * dt;
+    // camera-relative walking: push the stick where you want to go,
+    // the character turns to face that way
+    let mx = touchDrive.x, mz = -touchDrive.y;
+    if (fwd) mz += 1;
+    if (back) mz -= 1;
+    const len = Math.hypot(mx, mz);
+    let moving = false;
+    if (len > 0.05) {
+      moving = true;
+      const nx = mx / len, nz = mz / len;
+      const wx = Math.sin(player.camYaw) * nz + Math.cos(player.camYaw) * nx;
+      const wz = Math.cos(player.camYaw) * nz - Math.sin(player.camYaw) * nx;
+      const sp = 8 * Math.min(1, len);
+      player.footPos.x += wx * sp * dt;
+      player.footPos.z += wz * sp * dt;
+      player.footYaw = lerpAngle(player.footYaw, Math.atan2(wx, wz), 1 - Math.pow(0.0001, dt));
     }
     // block walking through buildings unless inside that place
     resolveFootCollision(prev);
@@ -2145,7 +2205,7 @@ function updatePlayer(dt) {
     playerPerson.rotation.y = player.footYaw;
     playerPerson.visible = true;
     // walk bob
-    if (fwd || back) {
+    if (moving) {
       const bob = Math.abs(Math.sin(performance.now() * 0.012)) * 0.05;
       playerPerson.position.y = bob;
       if (playerPerson.userData.legs) {
@@ -2153,53 +2213,58 @@ function updatePlayer(dt) {
         playerPerson.userData.legs[1].rotation.x = -Math.sin(performance.now() * 0.012) * 0.5;
       }
     }
+    // beacon: bouncing arrow over the parked car so it's easy to find
+    carBeacon.visible = true;
+    carBeacon.position.copy(playerCar.position);
+    const bt = performance.now() * 0.004;
+    carBeacon.userData.arrow.position.y = 5.6 + Math.sin(bt) * 0.8;
+    carBeacon.userData.arrow.rotation.y = bt * 0.5;
     // monster while walking
     checkMonsterHit(player.footPos);
     return;
   }
+  carBeacon.visible = false;
 
-  let accel = keys['KeyW'] || keys['ArrowUp'];
-  let brake = keys['KeyS'] || keys['ArrowDown'];
-  let left = keys['KeyA'] || keys['ArrowLeft'];
-  let right = keys['KeyD'] || keys['ArrowRight'];
   const flyUp = keys['Space'];
   const flyDown = keys['ShiftLeft'] || keys['ShiftRight'];
 
-  // Tablet drive stick
-  if (isTablet && (touchMove.x || touchMove.z)) {
-    if (touchMove.z < -0.15) accel = true; // stick up = gas
-    if (touchMove.z > 0.15) brake = true;  // stick down = brake
-    if (touchMove.x < -0.2) left = true;
-    if (touchMove.x > 0.2) right = true;
-  }
+  // Analog throttle & steering: keyboard gives ±1, the touch stick gives
+  // smooth in-between values (small push = gentle roll, full push = full gas)
+  let throttle = ((keys['KeyW'] || keys['ArrowUp']) ? 1 : 0) - ((keys['KeyS'] || keys['ArrowDown']) ? 1 : 0);
+  let steerInput = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+  throttle += -touchDrive.y;   // stick up = gas, down = brake/reverse
+  steerInput += -touchDrive.x; // stick right = turn right
+  throttle = THREE.MathUtils.clamp(throttle, -1, 1);
+  steerInput = THREE.MathUtils.clamp(steerInput, -1, 1);
+  if (touchStop) throttle = 0; // STOP button overrides gas
 
   // Out of gas — car won't move (can still steer a little for drama)
   if (player.fuel <= 0) {
     player.speed *= Math.pow(0.05, dt);
     player.fuel = 0;
     if (Math.abs(player.speed) < 0.5) {
-      toastHint(isTablet
+      toastHint(touchMode
         ? '⛽ OUT OF GAS! Tap 🚶 WALK → go to red gas station → ⛽ USE'
         : '⛽ OUT OF GAS! Get out (F), walk to Gas Shop, buy a can (E), bring it back!');
     }
   }
 
-  const steer = (left ? 1 : 0) + (right ? -1 : 0);
   const turnRate = 1.55 + Math.min(Math.abs(player.speed) / 40, 1) * 0.75;
   if (Math.abs(player.speed) > 0.4 || player.flying) {
-    player.yaw += steer * turnRate * dt * Math.sign(player.speed || 1);
-  } else if (steer !== 0) {
-    player.yaw += steer * 1.15 * dt;
+    player.yaw += steerInput * turnRate * dt * Math.sign(player.speed || 1);
+  } else if (steerInput !== 0) {
+    player.yaw += steerInput * 1.15 * dt;
   }
 
   const maxSpd = player.flying ? player.maxFlySpeed : player.maxSpeed;
   if (player.fuel > 0) {
-    if (accel) player.speed += 26 * dt;
-    if (brake) player.speed -= 30 * dt;
-  } else {
-    if (brake) player.speed -= 20 * dt;
+    if (throttle > 0.02) player.speed += 30 * throttle * dt;
+    else if (throttle < -0.02) player.speed += 32 * throttle * dt;
+  } else if (throttle < -0.02) {
+    player.speed += 20 * throttle * dt;
   }
-  if (!accel && !brake) player.speed *= Math.pow(0.22, dt);
+  if (touchStop) player.speed *= Math.pow(0.02, dt);
+  else if (Math.abs(throttle) <= 0.02) player.speed *= Math.pow(0.22, dt);
   player.speed = THREE.MathUtils.clamp(player.speed, -maxSpd * 0.35, maxSpd);
 
   // Burn fuel while moving or flying (gentle so kids can explore)
@@ -2256,7 +2321,13 @@ function updatePlayer(dt) {
   playerCar.position.x = THREE.MathUtils.clamp(playerCar.position.x, -900, 900);
   playerCar.position.z = THREE.MathUtils.clamp(playerCar.position.z, -900, 900);
 
-  const bank = steer * -0.25 * Math.min(1, Math.abs(player.speed) / 20);
+  // wheels visibly roll with speed
+  if (playerCar.userData.wheels) {
+    const spin = (player.speed / 0.42) * dt;
+    for (const w of playerCar.userData.wheels) w.rotation.x += spin;
+  }
+
+  const bank = steerInput * -0.25 * Math.min(1, Math.abs(player.speed) / 20);
   const bodyPitch = player.flying ? THREE.MathUtils.clamp(player.vy * 0.02, -0.35, 0.35) : -player.speed * 0.002;
   playerCar.rotation.order = 'YXZ';
   playerCar.rotation.y = player.yaw;
@@ -2336,6 +2407,10 @@ function updateAI(dt) {
     } else {
       pos.y = THREE.MathUtils.lerp(pos.y, target.y, 1 - Math.pow(0.05, dt));
       ai.mesh.rotation.z = THREE.MathUtils.lerp(ai.mesh.rotation.z, -diff * 0.3, 0.1);
+    }
+    if (!ai.flying && ai.mesh.userData.wheels) {
+      const spin = (ai.speed / 0.42) * dt;
+      for (const w of ai.mesh.userData.wheels) w.rotation.x += spin;
     }
     if (dist < 7) ai.index = (ai.index + 1) % ai.path.length;
   }
@@ -2420,11 +2495,17 @@ function updateCamera(dt) {
   const lookBack = player.lookBack && !player.onFoot;
   document.getElementById('lookBadge').classList.toggle('on', lookBack);
 
+  // drag-to-look recenters itself once the finger lifts
+  if (!look.active && look.yaw !== 0) {
+    look.yaw *= Math.pow(0.15, dt);
+    if (Math.abs(look.yaw) < 0.01) look.yaw = 0;
+  }
+
   let ideal, lookAt;
 
   if (player.onFoot) {
     playerPerson.visible = true;
-    const yaw = player.footYaw;
+    const yaw = player.camYaw;
     const pos = player.footPos;
     ideal = new THREE.Vector3(
       pos.x - Math.sin(yaw) * 5,
@@ -2442,6 +2523,7 @@ function updateCamera(dt) {
   }
 
   playerCar.visible = !player.cockpit || lookBack || !player.alive;
+  const camYaw = player.yaw + look.yaw;
 
   if (player.cockpit && !lookBack) {
     ideal = new THREE.Vector3(
@@ -2450,9 +2532,9 @@ function updateCamera(dt) {
       playerCar.position.z + Math.cos(player.yaw) * 0.35
     );
     lookAt = new THREE.Vector3(
-      playerCar.position.x + Math.sin(player.yaw) * 40,
+      playerCar.position.x + Math.sin(camYaw) * 40,
       playerCar.position.y + 1.1 + THREE.MathUtils.clamp(player.vy * 0.4, -4, 4),
-      playerCar.position.z + Math.cos(player.yaw) * 40
+      playerCar.position.z + Math.cos(camYaw) * 40
     );
     camera.fov = player.flying ? 78 : 72;
   } else if (lookBack) {
@@ -2472,15 +2554,16 @@ function updateCamera(dt) {
     const dist = player.flying ? 13 : 10.5;
     const height = player.flying ? 5.2 : 3.6;
     ideal = new THREE.Vector3(
-      playerCar.position.x - Math.sin(player.yaw) * dist,
+      playerCar.position.x - Math.sin(camYaw) * dist,
       playerCar.position.y + height,
-      playerCar.position.z - Math.cos(player.yaw) * dist
+      playerCar.position.z - Math.cos(camYaw) * dist
     );
     lookAt = playerCar.position.clone();
     lookAt.y += 1.4;
-    lookAt.x += Math.sin(player.yaw) * 4;
-    lookAt.z += Math.cos(player.yaw) * 4;
-    camera.fov = player.flying ? 74 : 66;
+    lookAt.x += Math.sin(camYaw) * 4;
+    lookAt.z += Math.cos(camYaw) * 4;
+    // gentle FOV kick with speed for a sense of rush
+    camera.fov = (player.flying ? 74 : 66) + Math.min(9, Math.abs(player.speed) * 0.12);
   }
   camera.updateProjectionMatrix();
   if (player.cockpit && !lookBack) camera.position.copy(ideal);
@@ -2542,6 +2625,11 @@ function updateHUD() {
   mapCtx.beginPath();
   mapCtx.arc(cx + (monster.zone.x - px) * scale, cy + (monster.zone.z - pz) * scale, 4, 0, Math.PI * 2);
   mapCtx.fill();
+  // your parked car while walking
+  if (player.onFoot) {
+    mapCtx.fillStyle = '#7ad7ff';
+    mapCtx.fillRect(cx + (playerCar.position.x - px) * scale - 2.5, cy + (playerCar.position.z - pz) * scale - 2.5, 5, 5);
+  }
   for (const ai of aiCars) {
     mapCtx.fillStyle = ai.flying ? '#ffd36a' : '#7ad7ff';
     mapCtx.beginPath();
@@ -2555,16 +2643,34 @@ function updateHUD() {
   }
   mapCtx.save();
   mapCtx.translate(cx, cy);
-  mapCtx.rotate(-(player.onFoot ? player.footYaw : player.yaw));
+  mapCtx.rotate(-(player.onFoot ? player.camYaw : player.yaw));
   mapCtx.fillStyle = player.onFoot ? '#a0ffc0' : '#ff4466';
   mapCtx.beginPath(); mapCtx.moveTo(0, -6); mapCtx.lineTo(4, 5); mapCtx.lineTo(-4, 5); mapCtx.closePath(); mapCtx.fill();
   mapCtx.restore();
 }
 
+let frameCount = 0;
+let perfTime = 0, perfFrames = 0;
+
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.05, (now - lastT) / 1000);
+  const rawDt = (now - lastT) / 1000;
+  // generous cap: game speed stays true to real time even when frames drop
+  const dt = Math.min(0.1, rawDt);
   lastT = now;
+  frameCount++;
+
+  // Adaptive resolution: if frames run slow for a while, render fewer pixels
+  if (rawDt > 0 && rawDt < 1) { perfTime += rawDt; perfFrames++; }
+  if (perfFrames >= 90) {
+    const avg = perfTime / perfFrames;
+    if (avg > 0.034 && pixelScale > 0.75) {
+      pixelScale = Math.max(0.75, pixelScale - 0.2);
+      renderer.setPixelRatio(pixelScale);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    perfTime = 0; perfFrames = 0;
+  }
 
   const haloPulse = 1 + Math.sin(now * 0.0007) * 0.045;
   sunHalo.scale.set(170 * haloPulse, 170 * haloPulse, 1);
@@ -2576,7 +2682,7 @@ function frame(now) {
     updatePedestrians(dt);
     updateMonster(dt);
     updateCamera(dt);
-    updateHUD();
+    if (frameCount % 2 === 0) updateHUD();
     updateSounds(dt);
     // Autosave every ~4 seconds on this device
     saveTimer += dt;
@@ -2594,8 +2700,11 @@ function frame(now) {
     updateMonster(dt * 0.5);
   }
 
+  // low-power devices refresh shadows every 2nd frame
+  if (!renderer.shadowMap.autoUpdate && frameCount % 2 === 0) renderer.shadowMap.needsUpdate = true;
   renderer.render(scene, camera);
-  if (started) mirrorRenderer.render(scene, rearCamera);
+  // rear mirror is a whole second scene render — every 3rd frame is plenty
+  if (started && frameCount % 3 === 0) mirrorRenderer.render(scene, rearCamera);
 }
 requestAnimationFrame(frame);
 
