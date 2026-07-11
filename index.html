@@ -1592,7 +1592,7 @@ for (let i = 0; i < 5; i++) spawnAI(skyLoop, i + 1, 18, true);
 // ─── Sound (Web Audio) ───────────────────────────────────────
 let audioCtx = null;
 let engineOsc = null, engineGain = null, engineFilter = null;
-let flyOsc = null, flyGain = null, flyNoise = null, flyNoiseGain = null;
+let flyOsc = null, flyGain = null;
 let soundReady = false;
 
 function initAudio() {
@@ -1620,7 +1620,7 @@ function initAudio() {
   // store second osc on engineOsc for pitch updates
   engineOsc._pair = engOsc2;
 
-  // Fly: airy noise + high tone
+  // Fly: soft high tone (the old white-noise "wind" sounded like a fan)
   flyOsc = audioCtx.createOscillator();
   flyOsc.type = 'sine';
   flyOsc.frequency.value = 220;
@@ -1630,25 +1630,6 @@ function initAudio() {
   flyGain.connect(audioCtx.destination);
   flyOsc.start();
 
-  // Noise buffer for wind
-  const bufLen = audioCtx.sampleRate * 2;
-  const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
-  flyNoise = audioCtx.createBufferSource();
-  flyNoise.buffer = buf;
-  flyNoise.loop = true;
-  const noiseFilter = audioCtx.createBiquadFilter();
-  noiseFilter.type = 'bandpass';
-  noiseFilter.frequency.value = 800;
-  noiseFilter.Q.value = 0.5;
-  flyNoiseGain = audioCtx.createGain();
-  flyNoiseGain.gain.value = 0;
-  flyNoise.connect(noiseFilter);
-  noiseFilter.connect(flyNoiseGain);
-  flyNoiseGain.connect(audioCtx.destination);
-  flyNoise.start();
-
   soundReady = true;
 }
 
@@ -1656,24 +1637,23 @@ function updateSounds(dt) {
   if (!soundReady || !player.alive) {
     if (engineGain) engineGain.gain.value = 0;
     if (flyGain) flyGain.gain.value = 0;
-    if (flyNoiseGain) flyNoiseGain.gain.value = 0;
     return;
   }
   const spd = Math.abs(player.speed);
   const flying = player.flying || playerCar.position.y > 2;
 
-  // Engine pitch/volume from speed
-  const engVol = Math.min(0.12, 0.02 + spd * 0.0025);
+  // Engine pitch/volume from speed — silent when parked or on foot,
+  // so there's no constant fan-like hum
+  const engVol = (player.onFoot || spd < 0.6) ? 0 : Math.min(0.12, 0.015 + spd * 0.0025);
   engineGain.gain.setTargetAtTime(flying ? engVol * 0.45 : engVol, audioCtx.currentTime, 0.08);
   const freq = 55 + spd * 4.5;
   engineOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
   if (engineOsc._pair) engineOsc._pair.frequency.setTargetAtTime(freq * 1.5, audioCtx.currentTime, 0.05);
   engineFilter.frequency.setTargetAtTime(300 + spd * 18, audioCtx.currentTime, 0.08);
 
-  // Fly whoosh
+  // Fly whoosh (soft tone only)
   const flyAmt = flying ? Math.min(0.1, 0.03 + spd * 0.0015 + Math.max(0, playerCar.position.y) * 0.0004) : 0;
   flyGain.gain.setTargetAtTime(flyAmt * 0.6, audioCtx.currentTime, 0.1);
-  flyNoiseGain.gain.setTargetAtTime(flyAmt, audioCtx.currentTime, 0.1);
   flyOsc.frequency.setTargetAtTime(180 + spd * 3 + playerCar.position.y * 0.8, audioCtx.currentTime, 0.08);
 }
 
@@ -2014,7 +1994,6 @@ function gameOver(reason) {
   document.getElementById('gameover').classList.remove('hidden');
   if (engineGain) engineGain.gain.value = 0;
   if (flyGain) flyGain.gain.value = 0;
-  if (flyNoiseGain) flyNoiseGain.gain.value = 0;
 }
 
 function retryGame() {

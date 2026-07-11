@@ -1,5 +1,5 @@
 // SkyWheels — offline cache for tablets (works without internet after first load)
-const CACHE = 'skywheels-offline-v4';
+const CACHE = 'skywheels-offline-v5';
 const ASSETS = [
   './',
   './index.html',
